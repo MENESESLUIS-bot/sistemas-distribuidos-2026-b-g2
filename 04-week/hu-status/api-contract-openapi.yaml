@@ -1,0 +1,87 @@
+openapi: 3.0.3
+info:
+  title: LMS Library API
+  version: 1.0.0
+  description: MVP 1 API for the administrator-operated university library.
+servers:
+  - url: http://localhost:8080
+paths:
+  /health:
+    get:
+      summary: Process liveness
+      responses:
+        '200':
+          description: The API process is alive.
+  /health/ready:
+    get:
+      summary: Database readiness
+      responses:
+        '200':
+          description: The API can process requests.
+        '503':
+          description: A required dependency is unavailable.
+  /api/v1/books:
+    post:
+      summary: Register a book
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Book created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '409':
+          description: ISBN already registered.
+  /api/v1/loans:
+    post:
+      summary: Register a loan
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [studentId, bookId]
+              properties:
+                studentId: { type: string, format: uuid }
+                bookId: { type: string, format: uuid }
+      responses:
+        '201':
+          description: Loan created with a due date seven days later.
+        '409':
+          description: Student is ineligible or the book has no available copies.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    BookInput:
+      type: object
+      required: [title, author, isbn, category, year, totalCopies]
+      properties:
+        title: { type: string, minLength: 1 }
+        author: { type: string, minLength: 1 }
+        isbn: { type: string, minLength: 1 }
+        category: { type: string, minLength: 1 }
+        year: { type: integer }
+        totalCopies: { type: integer, minimum: 1 }
+    Book:
+      allOf:
+        - $ref: '#/components/schemas/BookInput'
+        - type: object
+          required: [id, availableCopies]
+          properties:
+            id: { type: string, format: uuid }
+            availableCopies: { type: integer, minimum: 0 }
