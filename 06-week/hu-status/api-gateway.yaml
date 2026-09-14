@@ -1,0 +1,73 @@
+openapi: 3.0.3
+info:
+  title: API Gateway
+  version: 1.0.0
+  description: |
+    The gateway (NGINX) has no API contract of its own beyond "forward the request
+    byte-for-byte to the service that owns this path prefix" — see
+    `09-microservices/services/01-api-gateway/README.md` and
+    `05-architecture/decisions/records/ADR-003-nginx-reverse-proxy.md`.
+
+    ## Not applicable to this project
+    - **No internal headers added.** The gateway does not inject `X-User-Id`, `X-User-Role`,
+      or any other header — it forwards the request exactly as received. Every backend
+      service reads the `Authorization` header directly and validates the JWT itself.
+    - **No aggregated health check.** `GET /health` is routed to whichever backend the
+      `location` block sends it to (currently `library-api`) — it is that service's own
+      health check, not a gateway-level aggregate of every upstream's status.
+    - **No RBAC / role claims** — see `_shared.yaml`'s `bearerAuth` security scheme.
+
+    ## Real routing table
+    | Path prefix | Routed to |
+    |---|---|
+    | `/api/v1/auth` | `access-service` |
+    | `/api/v1/students` | `membership-service` |
+    | everything else (e.g. `/api/v1/books`) | `library-api` |
+
+    Each service's own real contract: `access-service.yaml`, `membership-service.yaml`,
+    `library-api.yaml`.
+
+servers:
+  - url: http://localhost:8080
+    description: Local development (docker compose)
+
+tags:
+  - name: Health
+    description: Passthrough to whichever backend currently owns /health
+
+paths:
+  /health:
+    get:
+      summary: Health check (passthrough)
+      description: |
+        Routed to the `library-api` backend today (an arbitrary choice among the three
+        current services — see `infra/nginx/nginx.conf`). Each service also exposes its own
+        `/health` directly, reachable only from inside the Docker network.
+      tags:
+        - Health
+      security: []
+      responses:
+        '200':
+          description: The backend that owns this route is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+              example:
+                status: ok
+        '503':
+          description: The backend that owns this route is not ready
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yaml#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: './_shared.yaml#/components/securitySchemes/bearerAuth'

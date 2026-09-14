@@ -1,0 +1,122 @@
+openapi: 3.0.3
+info:
+  title: Access Service API
+  version: 1.0.0
+  description: |
+    Access bounded context (`02-domain/domain-map.md`): authenticates the Administrator and
+    issues the JWT every other service trusts. See
+    `09-microservices/services/02-access-service/README.md`.
+
+    ## Not applicable to this project
+    - **No registration endpoint.** The Administrator is provisioned once by a database seed
+      migration, never through the API — v1 has a single Administrator, no self-registration
+      (`02-domain/entities-and-rules.md`).
+    - **No refresh token, no logout endpoint.** The JWT is the entire session; it simply
+      expires after `JWT_EXPIRY` (default 1h). There is nothing to revoke.
+    - **No JWKS endpoint.** Signing is HS256 with a shared secret (`JWT_SECRET`), not RS256
+      with a public/private key pair — every service already has the secret via its own
+      environment configuration, so there is no public key to publish.
+    - **No roles/permissions in the token.** v1 has exactly one role (Administrator).
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development, through the API gateway
+
+security:
+  - {}
+
+tags:
+  - name: Auth
+    description: Administrator authentication
+  - name: Health
+
+paths:
+  /health:
+    get:
+      summary: Liveness check
+      operationId: health
+      tags: [Health]
+      security: []
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+
+  /auth/login:
+    post:
+      summary: Authenticate the Administrator
+      description: |
+        FR-001/FR-002. On success, returns a JWT. On any credential failure — unknown
+        username or wrong password — returns the exact same 401 error, so a caller cannot
+        tell which one was wrong (INV-002 on Administrator, `02-domain/entities-and-rules.md`).
+      operationId: login
+      tags: [Auth]
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: admin@lms.com
+              password: "<seed password — see the project's local setup guide>"
+      responses:
+        '200':
+          description: Login succeeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+                expiresIn: 3600
+        '400':
+          $ref: './_shared.yaml#/components/responses/BadRequest'
+        '401':
+          description: Incorrect username or password (generic — never says which)
+          content:
+            application/json:
+              schema:
+                $ref: './_shared.yaml#/components/schemas/ErrorResponse'
+              example:
+                error: INVALID_CREDENTIALS
+                message: Incorrect username or password
+        '500':
+          $ref: './_shared.yaml#/components/responses/InternalError'
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          description: The Administrator's login identifier (an email address in practice)
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      required: [accessToken, expiresIn]
+      properties:
+        accessToken:
+          type: string
+          description: JWT, HS256. Claims are only `sub` (Administrator UUID), `iat`, `exp` — no role/permission claims (see info.description).
+        expiresIn:
+          type: integer
+          description: Seconds until the token expires
+          example: 3600
+
+  securitySchemes:
+    bearerAuth:
+      $ref: './_shared.yaml#/components/securitySchemes/bearerAuth'
