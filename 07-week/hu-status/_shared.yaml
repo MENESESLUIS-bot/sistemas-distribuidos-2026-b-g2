@@ -1,0 +1,131 @@
+openapi: 3.0.3
+info:
+  title: Shared Components
+  version: 1.0.0
+  description: |
+    Schemas and components shared across every API contract in this project.
+    Reference them from your contract with: $ref: './_shared.yaml#/components/...'
+
+components:
+  schemas:
+    # ─── Pagination ───────────────────────────────────────────────────────────
+    PaginatedMeta:
+      type: object
+      description: Pagination metadata included in list responses. Matches the real `meta` object every service's list endpoint returns.
+      required: [total]
+      properties:
+        total:
+          type: integer
+          description: Total records matching the filter
+          example: 142
+
+    # ─── Errors ──────────────────────────────────────────────────────────────
+    ErrorResponse:
+      type: object
+      description: |
+        Standard error format for every endpoint in every service — matches
+        `response.ErrorBody` in each service's `internal/infrastructure/http/response/response.go`.
+        Deliberately smaller than a generic template: this project does not have a
+        field-level validation-details array or a separate trace ID distinct from the
+        correlation ID.
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          description: Error code in SCREAMING_SNAKE_CASE
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          description: Human-readable message
+          example: Invalid request body
+        correlationId:
+          type: string
+          description: Correlation ID for this request, also present in the service's structured logs
+          example: 550e8400-e29b-41d4-a716-446655440000
+
+    # ─── Common types ────────────────────────────────────────────────────────
+    UUID:
+      type: string
+      format: uuid
+      example: 550e8400-e29b-41d4-a716-446655440000
+
+    Timestamp:
+      type: string
+      format: date-time
+      description: RFC 3339 / ISO 8601, as produced by Go's `time.Time.Format("2006-01-02T15:04:05Z07:00")`
+      example: '2026-09-02T10:30:00Z'
+
+    AuditFields:
+      type: object
+      description: Audit columns present on every entity in this system
+      properties:
+        createdAt:
+          $ref: '#/components/schemas/Timestamp'
+        updatedAt:
+          $ref: '#/components/schemas/Timestamp'
+
+  # ─── Reusable parameters ────────────────────────────────────────────
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      description: Resource's unique ID (UUID)
+      schema:
+        $ref: '#/components/schemas/UUID'
+
+  # ─── Reusable responses ────────────────────────────────────────────
+  responses:
+    BadRequest:
+      description: Validation error in the submitted data
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: VALIDATION_ERROR
+            message: Invalid request body
+
+    Unauthorized:
+      description: Missing or invalid authentication token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: UNAUTHORIZED
+            message: Authentication token required
+
+    NotFound:
+      description: The requested resource does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: NOT_FOUND
+            message: The requested resource does not exist
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: INTERNAL_ERROR
+            message: Internal server error
+
+  # ─── Security ───────────────────────────────────────────────────────────
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT obtained from POST /api/v1/auth/login on access-service. HS256, signed with a
+        secret shared by every service — each service validates it locally, without calling
+        access-service back. Include as: Authorization: Bearer <token>
+
+        Not applicable: RBAC scopes/roles in the token — v1 has a single Administrator role,
+        so the token carries no role/permission claims (see 02-domain/domain-map.md).
