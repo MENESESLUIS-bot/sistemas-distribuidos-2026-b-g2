@@ -15,14 +15,16 @@
 | HU ID | Title | Status (todo/doing/done) | Evidence (PR or commit URL) |
 |---|---|---|---|
 | catalog-service | API entry point (`cmd/api/main.go`) + Docker build | done | [Dockerfile](Dockerfile); [cmd/api/main.go](cmd/api/main.go) (commit 3616550) |
+| catalog-service | Go module dependencies (`go.mod`/`go.sum`) | done | [go.mod](go.mod); [go.sum](go.sum) (commit d060fd5) |
 
 ## 2. My individual contribution
 - Authored `cmd/api/main.go`: the catalog-service process entry point — loads config, sets up a JSON zap logger, opens a Postgres pool, wires the book repository/use cases (create, loan copy, return copy) into the HTTP handler and router, and runs the server with graceful shutdown on SIGINT/SIGTERM.
 - Authored `Dockerfile`: a two-stage build — `golang:1.25-alpine` compiles a static (`CGO_ENABLED=0`) binary from `./cmd/api`, and the runtime stage copies just the binary onto `alpine:3.21` with CA certificates, exposing port 8080.
+- Added `go.mod`/`go.sum` (module `github.com/code-corhuila/lms-catalog-api`, Go 1.25.1), pinning the service's direct dependencies (`chi`, `golang-jwt`, `google/uuid`, `pgx`, `zap`, `golang.org/x/crypto`) and their transitive/indirect requirements, so `go mod download` and the Dockerfile build now resolve.
 
 ## 3. Blockers and risks
 - No unit/integration tests included yet for `main.go`'s wiring.
-- `go.mod`/`go.sum` and the rest of the service's internal packages are not present in this docs folder, so the Dockerfile build context assumes they exist in the actual service repo.
+- The service's internal packages (`internal/...`) referenced by `main.go` are still not present in this docs folder, so the Dockerfile build context assumes they exist in the actual service repo.
 
 ## 4. Plan for next week
 - Add a `docker-compose` service definition (catalog-service + Postgres) and verify the container builds/runs end to end.
@@ -39,4 +41,6 @@
 ## 6. Evidence links
 - [API entry point](cmd/api/main.go)
 - [Dockerfile](Dockerfile)
+- [go.mod](go.mod) / [go.sum](go.sum)
 - Commit: `3616550` — "Add Dockerfile and API entrypoint"
+- Commit: `d060fd5` — "Add Go module files for catalog-service"
