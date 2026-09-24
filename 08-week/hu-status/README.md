@@ -8,7 +8,7 @@
 - FULL_NAME: Luis Alejandro Meneses
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
-- SPRINT_GOAL: Wire the catalog-service HTTP entry point and containerize it with a multi-stage Dockerfile.
+- SPRINT_GOAL: Wire the catalog-service HTTP entry point, containerize it, and implement the HU-04/HU-06/HU-07 application use cases.
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
@@ -16,19 +16,24 @@
 |---|---|---|---|
 | catalog-service | API entry point (`cmd/api/main.go`) + Docker build | done | [Dockerfile](Dockerfile); [cmd/api/main.go](cmd/api/main.go) (commit 3616550) |
 | catalog-service | Go module dependencies (`go.mod`/`go.sum`) | done | [go.mod](go.mod); [go.sum](go.sum) (commit d060fd5) |
+| HU-04 | Create book use case (reject duplicate ISBN) | doing | [create_book.go](internal/application/usecase/create_book.go); [create_book_test.go](internal/application/usecase/create_book_test.go) (commit 37ec6e8) |
+| HU-06 / HU-07 | Loan / return book copy use cases | doing | [adjust_book_availability.go](internal/application/usecase/adjust_book_availability.go) (commit 37ec6e8) |
 
 ## 2. My individual contribution
 - Authored `cmd/api/main.go`: the catalog-service process entry point — loads config, sets up a JSON zap logger, opens a Postgres pool, wires the book repository/use cases (create, loan copy, return copy) into the HTTP handler and router, and runs the server with graceful shutdown on SIGINT/SIGTERM.
 - Authored `Dockerfile`: a two-stage build — `golang:1.25-alpine` compiles a static (`CGO_ENABLED=0`) binary from `./cmd/api`, and the runtime stage copies just the binary onto `alpine:3.21` with CA certificates, exposing port 8080.
 - Added `go.mod`/`go.sum` (module `github.com/code-corhuila/lms-catalog-api`, Go 1.25.1), pinning the service's direct dependencies (`chi`, `golang-jwt`, `google/uuid`, `pgx`, `zap`, `golang.org/x/crypto`) and their transitive/indirect requirements, so `go mod download` and the Dockerfile build now resolve.
+- Authored `internal/application/usecase/create_book.go`: `CreateBook` (HU-04) — rejects registration when the ISBN already exists (`ErrISBNAlreadyExists`), otherwise builds a `catalog.Book` via the domain constructor and persists it through `catalog.BookRepository`; covered by `create_book_test.go`.
+- Authored `internal/application/usecase/adjust_book_availability.go`: `LoanBookCopy` (HU-06) and `ReturnBookCopy` (HU-07) — look up the book by ID, delegate the copy-count change to `catalog.Book`'s domain methods, and persist the result. These exist as HTTP-facing use cases (rather than direct repository calls) because `Book` now lives in a separate database from circulation-service, per the service-boundary decomposition.
+- Added `Makefile` with `dev`/`test`/`test-cover`/`build`/`lint` targets; `migrate-up`/`migrate-down` were intentionally dropped since schema ownership moved to the `lms-catalog-db` repo (ADR-006).
 
 ## 3. Blockers and risks
-- No unit/integration tests included yet for `main.go`'s wiring.
-- The service's internal packages (`internal/...`) referenced by `main.go` are still not present in this docs folder, so the Dockerfile build context assumes they exist in the actual service repo.
+- The `internal/domain/catalog` package (the `Book` entity, `BookRepository` port, and domain errors like `ErrBookNotFound`) that these use cases depend on is not yet present in this docs folder, so the code here does not compile standalone.
+- Only `create_book.go` has a test so far; `adjust_book_availability.go` (loan/return) still needs unit test coverage.
 
 ## 4. Plan for next week
-- Add a `docker-compose` service definition (catalog-service + Postgres) and verify the container builds/runs end to end.
-- Add tests for the router wiring and open the corresponding HU PR.
+- Add the `internal/domain/catalog` package (Book entity + repository port) so the use cases compile and can be tested in isolation.
+- Add tests for `LoanBookCopy`/`ReturnBookCopy`, wire up `golangci-lint`, and open the corresponding HU PRs.
 
 ## 5. Compliance self-check
 - [ ] Conventional Commits - `type(scope): summary`
@@ -42,5 +47,7 @@
 - [API entry point](cmd/api/main.go)
 - [Dockerfile](Dockerfile)
 - [go.mod](go.mod) / [go.sum](go.sum)
+- [Use cases](internal/application/usecase/) / [Makefile](Makefile)
 - Commit: `3616550` — "Add Dockerfile and API entrypoint"
 - Commit: `d060fd5` — "Add Go module files for catalog-service"
+- Commit: `37ec6e8` — "Add catalog-service use cases and build Makefile"
