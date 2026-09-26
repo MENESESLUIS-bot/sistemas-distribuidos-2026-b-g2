@@ -8,7 +8,7 @@
 - FULL_NAME: Luis Alejandro Meneses
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
-- SPRINT_GOAL: Wire the catalog-service HTTP entry point, containerize it, and implement the HU-04/HU-06/HU-07 application use cases.
+- SPRINT_GOAL: Wire the catalog-service HTTP entry point, containerize it, and implement the HU-04/HU-06/HU-07 application use cases on top of the Catalog domain model.
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
@@ -16,8 +16,8 @@
 |---|---|---|---|
 | catalog-service | API entry point (`cmd/api/main.go`) + Docker build | done | [Dockerfile](Dockerfile); [cmd/api/main.go](cmd/api/main.go) (commit 3616550) |
 | catalog-service | Go module dependencies (`go.mod`/`go.sum`) | done | [go.mod](go.mod); [go.sum](go.sum) (commit d060fd5) |
-| HU-04 | Create book use case (reject duplicate ISBN) | doing | [create_book.go](internal/application/usecase/create_book.go); [create_book_test.go](internal/application/usecase/create_book_test.go) (commit 37ec6e8) |
-| HU-06 / HU-07 | Loan / return book copy use cases | doing | [adjust_book_availability.go](internal/application/usecase/adjust_book_availability.go) (commit 37ec6e8) |
+| HU-04 | Create book use case (reject duplicate ISBN) | done | [create_book.go](internal/application/usecase/create_book.go); [create_book_test.go](internal/application/usecase/create_book_test.go); [book.go](internal/domain/catalog/book.go) (commits 37ec6e8, d807d9d) |
+| HU-06 / HU-07 | Loan / return book copy use cases | done | [adjust_book_availability.go](internal/application/usecase/adjust_book_availability.go); [book.go](internal/domain/catalog/book.go) (commits 37ec6e8, d807d9d) |
 
 ## 2. My individual contribution
 - Authored `cmd/api/main.go`: the catalog-service process entry point — loads config, sets up a JSON zap logger, opens a Postgres pool, wires the book repository/use cases (create, loan copy, return copy) into the HTTP handler and router, and runs the server with graceful shutdown on SIGINT/SIGTERM.
@@ -26,13 +26,16 @@
 - Authored `internal/application/usecase/create_book.go`: `CreateBook` (HU-04) — rejects registration when the ISBN already exists (`ErrISBNAlreadyExists`), otherwise builds a `catalog.Book` via the domain constructor and persists it through `catalog.BookRepository`; covered by `create_book_test.go`.
 - Authored `internal/application/usecase/adjust_book_availability.go`: `LoanBookCopy` (HU-06) and `ReturnBookCopy` (HU-07) — look up the book by ID, delegate the copy-count change to `catalog.Book`'s domain methods, and persist the result. These exist as HTTP-facing use cases (rather than direct repository calls) because `Book` now lives in a separate database from circulation-service, per the service-boundary decomposition.
 - Added `Makefile` with `dev`/`test`/`test-cover`/`build`/`lint` targets; `migrate-up`/`migrate-down` were intentionally dropped since schema ownership moved to the `lms-catalog-db` repo (ADR-006).
+- Authored `internal/domain/catalog/book.go`: the `Book` aggregate root (Catalog bounded context) — `NewBook` (INV-003: at least one copy at registration), `LoanOneCopy`/`ReturnOneCopy` (INV-001: availability never goes negative or exceeds total), and `Update` (HU-09, ISBN intentionally non-editable); covered by `book_test.go`.
+- Authored `internal/domain/catalog/port.go`: the `BookRepository` driven port (`FindByID`, `FindByISBN`, `Search`, `Save`) that the use cases and future Postgres adapter depend on.
+- Authored `internal/config/config.go`: env-var-only configuration loader (`Config.Load`) for port, DB connection, JWT secret/expiry, log level, and CORS origin; fails fast if `JWT_SECRET` is unset, and builds the Postgres DSN via `Config.DSN()`.
 
 ## 3. Blockers and risks
-- The `internal/domain/catalog` package (the `Book` entity, `BookRepository` port, and domain errors like `ErrBookNotFound`) that these use cases depend on is not yet present in this docs folder, so the code here does not compile standalone.
-- Only `create_book.go` has a test so far; `adjust_book_availability.go` (loan/return) still needs unit test coverage.
+- Only `create_book.go` and `book.go` have tests so far; `adjust_book_availability.go` (loan/return use cases) still needs unit test coverage.
+- No Postgres adapter implementing `catalog.BookRepository` yet, so the service cannot run end to end — `main.go`'s wiring is still unverified against a real database.
 
 ## 4. Plan for next week
-- Add the `internal/domain/catalog` package (Book entity + repository port) so the use cases compile and can be tested in isolation.
+- Implement the Postgres adapter for `catalog.BookRepository` and verify the service builds/runs end to end via the Dockerfile.
 - Add tests for `LoanBookCopy`/`ReturnBookCopy`, wire up `golangci-lint`, and open the corresponding HU PRs.
 
 ## 5. Compliance self-check
@@ -48,6 +51,8 @@
 - [Dockerfile](Dockerfile)
 - [go.mod](go.mod) / [go.sum](go.sum)
 - [Use cases](internal/application/usecase/) / [Makefile](Makefile)
+- [Catalog domain](internal/domain/catalog/) / [Config loader](internal/config/config.go)
 - Commit: `3616550` — "Add Dockerfile and API entrypoint"
 - Commit: `d060fd5` — "Add Go module files for catalog-service"
 - Commit: `37ec6e8` — "Add catalog-service use cases and build Makefile"
+- Commit: `d807d9d` — "Add catalog domain entity and env-based config loader"
