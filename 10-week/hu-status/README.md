@@ -34,4 +34,4 @@
 - [ ] No secrets; config via environment variables
 
 ## 6. Evidence links
--
+- Diagram: [Mapa_Saga_Outbox_CQRS_MVP2.png](./Mapa_Saga_Outbox_CQRS_MVP2.png)
