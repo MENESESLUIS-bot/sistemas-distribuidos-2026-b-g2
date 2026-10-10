@@ -57,3 +57,38 @@
 ## 6. Evidence links
 - Diagram: [Mapa_Saga_Outbox_CQRS_MVP2.png](./Mapa_Saga_Outbox_CQRS_MVP2.png)
 - Commit: `10b23d1` — "docs(hu-status): link Saga Outbox CQRS diagram"
+
+### My commits and PRs this week (all repos)
+Every commit and pull request authored by `MENESESLUIS-bot` between 2026-10-05 and 2026-10-11 (America/Bogota). Cherry-picks of the same commit into develop/qa/main are listed once, with the original SHA.
+
+**Pull requests (8)**
+
+| Opened | Repo | PR | Title | State |
+|---|---|---|---|---|
+| 2026-10-06 | code-corhuila/lms-catalog-api | [#10](https://github.com/code-corhuila/lms-catalog-api/pull/10) | release: 1.0.0 — promote validated qa stories to main | merged |
+| 2026-10-06 | code-corhuila/lms-catalog-portal | [#5](https://github.com/code-corhuila/lms-catalog-portal/pull/5) | release: 0.1.0 catalog portal mvp1 | closed |
+| 2026-10-06 | code-corhuila/lms-catalog-db | [#6](https://github.com/code-corhuila/lms-catalog-db/pull/6) | release: 1.0.0 — catalog-db Liquibase schema | merged |
+| 2026-10-06 | code-corhuila/lms-catalog-portal | [#6](https://github.com/code-corhuila/lms-catalog-portal/pull/6) | release: 1.0.0 catalog portal mvp1 | merged |
+| 2026-10-08 | code-corhuila/lms-front | [#9](https://github.com/code-corhuila/lms-front/pull/9) | test(front): add unit and component test suite with Vitest | merged |
+| 2026-10-08 | code-corhuila/lms-front | [#10](https://github.com/code-corhuila/lms-front/pull/10) | qa: promote shell + test suite (unit, connection, stress, perf) to qa | merged |
+| 2026-10-08 | code-corhuila/lms-front | [#12](https://github.com/code-corhuila/lms-front/pull/12) | test(front): add connection, stress and performance tests | merged |
+| 2026-10-09 | code-corhuila/lms-catalog-api | [#11](https://github.com/code-corhuila/lms-catalog-api/pull/11) | fix(catalog): add PATCH /books/{id} for HU-09 book editing | open |
+
+**Commits (14)**
+
+| Date | Repo | Commit | Message |
+|---|---|---|---|
+| 2026-10-05 | code-corhuila/lms-catalog-api | [`4dd992f`](https://github.com/code-corhuila/lms-catalog-api/commit/4dd992fa9383a140fbf444e8059357308d2757fb) | Merge pull request #8 from code-corhuila/qa-promote/develop-catalog-skeleton |
+| 2026-10-06 | code-corhuila/lms-catalog-portal | [`8e36870`](https://github.com/code-corhuila/lms-catalog-portal/commit/8e368708b1e76afcf70bf934d42dead643be687b) | Merge pull request #4 from code-corhuila/promote-qa/project-scaffold |
+| 2026-10-06 | code-corhuila/lms-catalog-db | [`f1f00c4`](https://github.com/code-corhuila/lms-catalog-db/commit/f1f00c434581df07e183c552ae073dad6c2b2381) | Merge pull request #5 from code-corhuila/qa-catalog-db-liquibase-schema |
+| 2026-10-06 | code-corhuila/lms-catalog-api | [`5a2ccbb`](https://github.com/code-corhuila/lms-catalog-api/commit/5a2ccbbc77b150b6846b9dcfca4a04437dc039a5) | Merge pull request #10 from code-corhuila/release/1.0.0 |
+| 2026-10-06 | code-corhuila/lms-catalog-portal | [`b3b578d`](https://github.com/code-corhuila/lms-catalog-portal/commit/b3b578dde029d72ae19e21c7335780dd02666cfc) | Merge pull request #6 from code-corhuila/release/1.0.0 |
+| 2026-10-06 | code-corhuila/lms-catalog-db | [`8b05827`](https://github.com/code-corhuila/lms-catalog-db/commit/8b0582795a7f433ea2557f76c56a9f812a5c3ca8) | Merge pull request #6 from code-corhuila/release/1.0.0 |
+| 2026-10-07 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`10b23d1`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/10b23d1b977d1e3ec3a967c14b6f9d101ab289da) | docs(hu-status): link Saga Outbox CQRS diagram |
+| 2026-10-07 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`d64e1a5`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d64e1a5ede45bd00f0f5c8092195e2a7ca5ab7b6) | docs(hu-status): update week 10 status with Saga, Outbox and CQRS concept map |
+| 2026-10-08 | code-corhuila/lms-front | [`38466bd`](https://github.com/code-corhuila/lms-front/commit/38466bd01fb2601bd7c0a314f7a0dca960d1c7f2) | test(front): add unit and component test suite with Vitest |
+| 2026-10-08 | code-corhuila/lms-front | [`a76845d`](https://github.com/code-corhuila/lms-front/commit/a76845d90e894114f640179d1c8cff0cfea06fba) | test(front): add connection, stress and performance tests |
+| 2026-10-08 | code-corhuila/lms-front | [`3e32e55`](https://github.com/code-corhuila/lms-front/commit/3e32e55b1faf587a73dccb537823449c96753474) | Merge pull request #9 from code-corhuila/test/shell-unit-tests |
+| 2026-10-08 | code-corhuila/lms-front | [`e680a4b`](https://github.com/code-corhuila/lms-front/commit/e680a4b18416e79e013146c23c99ec9b6e88998b) | Merge pull request #12 from code-corhuila/chore/front-connection-stress-perf-tests |
+| 2026-10-08 | code-corhuila/lms-front | [`2ed1d0b`](https://github.com/code-corhuila/lms-front/commit/2ed1d0b4e3c54bd2c173d0b5ef6578188b4ffed2) | Merge pull request #10 from code-corhuila/promote-qa/shell-unit-tests |
+| 2026-10-09 | code-corhuila/lms-catalog-api | [`8bad842`](https://github.com/code-corhuila/lms-catalog-api/commit/8bad8429dd8e31f19a1dafa9dcf48bd0b3f81077) | fix(catalog): add PATCH /books/{id} for HU-09 book editing |

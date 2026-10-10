@@ -55,3 +55,32 @@
 - [Service contract template](_template-service.yaml)
 - [Access-service infrastructure adapters](infrastructure/)
 - Commit: `8db6b5c` — "Document drafts 07"
+
+### My commits and PRs this week (all repos)
+Every commit and pull request authored by `MENESESLUIS-bot` between 2026-09-14 and 2026-09-20 (America/Bogota). Cherry-picks of the same commit into develop/qa/main are listed once, with the original SHA.
+
+**Pull requests (2)**
+
+| Opened | Repo | PR | Title | State |
+|---|---|---|---|---|
+| 2026-09-15 | code-corhuila/library-docs | [#9](https://github.com/code-corhuila/library-docs/pull/9) | docs(architecture): add ADR-008 scoping lms-workflow saga to overdue/penalty | merged |
+| 2026-09-17 | code-corhuila/lms-access-api | [#5](https://github.com/code-corhuila/lms-access-api/pull/5) | chore: add infrastructure adapters for access-service migration | merged |
+
+**Commits (14)**
+
+| Date | Repo | Commit | Message |
+|---|---|---|---|
+| 2026-09-14 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`8db6b5c`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8db6b5cf70a6876eb67d77537404f06355be1074) | Document drafts 07 |
+| 2026-09-14 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`3e81e9a`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3e81e9ad1764a0675912fbf8fa9f178911efdad8) | Merge branch 'main' of https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 |
+| 2026-09-14 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`cc3d679`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/cc3d679a0215d6d08fa74676a0ca8e00686c232f) | Document drafts 07 |
+| 2026-09-14 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`2a8231b`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/2a8231b2be52c13acfdb88446ae6c8a0f4889693) | Document drafts 06 |
+| 2026-09-15 | code-corhuila/library-docs | [`e6389a9`](https://github.com/code-corhuila/library-docs/commit/e6389a99921ea5d99701e457968d40e1fb1d8798) | docs(architecture): add ADR-008 scoping lms-workflow saga to overdue/penalty |
+| 2026-09-17 | code-corhuila/library-docs | [`e9076e0`](https://github.com/code-corhuila/library-docs/commit/e9076e07bf798f0004d9354e415731542070e95d) | docs(architecture): address ADR-008 instructor review recommendations |
+| 2026-09-17 | code-corhuila/lms-access-api | [`57f28aa`](https://github.com/code-corhuila/lms-access-api/commit/57f28aace54cef670c21ef13522e4b46c8e8be28) | chore: add auth infrastructure adapter for access-service migration |
+| 2026-09-17 | code-corhuila/lms-access-api | [`5707415`](https://github.com/code-corhuila/lms-access-api/commit/57074152462645673f0d63b1acf426cdc8655d33) | chore: add http infrastructure adapter for access-service migration |
+| 2026-09-17 | code-corhuila/lms-access-api | [`f6704b6`](https://github.com/code-corhuila/lms-access-api/commit/f6704b60e53b793aeeb6777e40206ce64e974e00) | chore: add logger infrastructure adapter for access-service migration |
+| 2026-09-17 | code-corhuila/lms-access-api | [`69cc0a5`](https://github.com/code-corhuila/lms-access-api/commit/69cc0a52665b4cd91f6fd2b649f0e4a6e36950cc) | chore: add postgres infrastructure adapter for access-service migration |
+| 2026-09-17 | code-corhuila/lms-access-api | [`dc6662a`](https://github.com/code-corhuila/lms-access-api/commit/dc6662ab3cc8014970688447885f905e81c675df) | fix: move domain/application/infrastructure out of internal/config |
+| 2026-09-17 | code-corhuila/lms-access-api | [`69c1853`](https://github.com/code-corhuila/lms-access-api/commit/69c18534004052c184f5a2092bbc872723952d90) | Merge pull request #5 from code-corhuila/chore/migrate-infrastructure-from-monolith |
+| 2026-09-17 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`3865a23`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3865a233c7988db1a4a9345f6a6a76a2e5dc3142) | Document drafts 07 |
+| 2026-09-20 | code-corhuila/library-docs | [`b463baf`](https://github.com/code-corhuila/library-docs/commit/b463baf195097e7e04457c7c041a62056b95b3a5) | Merge pull request #9 from code-corhuila/docs/adr-008-circulation-saga-scope |

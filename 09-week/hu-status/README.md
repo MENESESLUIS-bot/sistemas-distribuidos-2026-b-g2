@@ -84,3 +84,68 @@
 - Commit: `177ce96` — "build(catalog-portal): add nginx config with remoteEntry no-store caching"
 - Commit: `ba98f99` — "build(catalog-portal): add multi-stage Node build and nginx runtime Dockerfile"
 - Commit: `3e9d154` — "build(catalog-portal): add compose service on lms-network"
+
+### My commits and PRs this week (all repos)
+Every commit and pull request authored by `MENESESLUIS-bot` between 2026-09-28 and 2026-10-04 (America/Bogota). Cherry-picks of the same commit into develop/qa/main are listed once, with the original SHA.
+
+**Pull requests (7)**
+
+| Opened | Repo | PR | Title | State |
+|---|---|---|---|---|
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [#2](https://github.com/code-corhuila/lms-catalog-portal/pull/2) | chore: scaffold catalog portal with book pages and deploy files | merged |
+| 2026-10-02 | code-corhuila/lms-catalog-portal | [#3](https://github.com/code-corhuila/lms-catalog-portal/pull/3) | feat(catalog): add book pages, ui components and deploy files | merged |
+| 2026-10-03 | code-corhuila/lms-catalog-api | [#6](https://github.com/code-corhuila/lms-catalog-api/pull/6) | chore(qa): promote catalog service skeleton and Annex C fixes from develop | closed |
+| 2026-10-03 | code-corhuila/lms-catalog-api | [#7](https://github.com/code-corhuila/lms-catalog-api/pull/7) | chore(release): promote develop to qa | closed |
+| 2026-10-03 | code-corhuila/lms-catalog-api | [#8](https://github.com/code-corhuila/lms-catalog-api/pull/8) | qa: promote catalog service skeleton from develop | merged |
+| 2026-10-03 | code-corhuila/lms-catalog-db | [#5](https://github.com/code-corhuila/lms-catalog-db/pull/5) | chore(qa): promote catalog-db Liquibase schema from develop | merged |
+| 2026-10-03 | code-corhuila/lms-catalog-portal | [#4](https://github.com/code-corhuila/lms-catalog-portal/pull/4) | chore(qa): promote project scaffold and catalog pages from develop | merged |
+
+**Commits (45)**
+
+| Date | Repo | Commit | Message |
+|---|---|---|---|
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [`d7bd273`](https://github.com/code-corhuila/lms-catalog-portal/commit/d7bd273a947281fb0dd4fa10baa854e284020ac1) | chore(deps): add npm lockfile |
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [`b78cbc2`](https://github.com/code-corhuila/lms-catalog-portal/commit/b78cbc20e8c78b460f1be6fecfd748992db91408) | chore(deps): add package manifest with vite, react and module federation |
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [`0f268d5`](https://github.com/code-corhuila/lms-catalog-portal/commit/0f268d54457bea3c15ee54423ce076949866eb12) | chore(config): add env example documenting no local variables |
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [`a462168`](https://github.com/code-corhuila/lms-catalog-portal/commit/a462168a776e96ec12462d1ac98e735a4b0136d3) | chore(config): add gitignore for node, vite and secrets |
+| 2026-09-28 | code-corhuila/lms-catalog-portal | [`2d36587`](https://github.com/code-corhuila/lms-catalog-portal/commit/2d36587435d34311fb25e340753230e112a00ba9) | feat(portal): add html entry point for the catalog portal |
+| 2026-09-29 | code-corhuila/lms-catalog-portal | [`32b5afb`](https://github.com/code-corhuila/lms-catalog-portal/commit/32b5afb93c047b1aed97b90974ddef4abf9502a7) | chore(config): add tsconfig for vite config |
+| 2026-09-29 | code-corhuila/lms-catalog-portal | [`abd4dca`](https://github.com/code-corhuila/lms-catalog-portal/commit/abd4dca1c05927551810a92b5b0bcc5265eac914) | chore(config): add strict tsconfig for app sources |
+| 2026-09-29 | code-corhuila/lms-catalog-portal | [`ad7a0a9`](https://github.com/code-corhuila/lms-catalog-portal/commit/ad7a0a9819579157c6d8c2b015e40d63bd60bc35) | chore(config): add root tsconfig with project references |
+| 2026-09-29 | code-corhuila/lms-catalog-portal | [`8216347`](https://github.com/code-corhuila/lms-catalog-portal/commit/8216347a89d14acdedf4c30f27c0aa5c018f1e08) | chore(config): add vite config exposing routes via module federation |
+| 2026-09-29 | code-corhuila/lms-catalog-portal | [`5c973fa`](https://github.com/code-corhuila/lms-catalog-portal/commit/5c973fa92918973a39610c78b46523ed9e0b20fe) | Merge pull request #2 from code-corhuila/chore/project-scaffold |
+| 2026-09-29 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`60d220d`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/60d220d4d61ec7c55e129020319d11ead7e062c2) | chore(catalog-portal): scaffold Vite + React micro-frontend with Module Federation |
+| 2026-09-29 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`0f77968`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f779681b2c0f0b62fde372620df2164746c1e3c) | docs(hu-status): update week 09 status with catalog-portal scaffold |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`c12f7aa`](https://github.com/code-corhuila/lms-catalog-portal/commit/c12f7aa62178f15857d7285ec897605706d14bd5) | chore(config): ignore module federation diagnostics folder |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`a69aa34`](https://github.com/code-corhuila/lms-catalog-portal/commit/a69aa3438e2665ab4fedc059fe9e3f983c975930) | feat(ui): add tailwind theme with lms design tokens |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`7e724e6`](https://github.com/code-corhuila/lms-catalog-portal/commit/7e724e6d07febe16e98faf1f7a6fedc761d4d714) | feat(ui): add button component with variants and loading state |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`061a8df`](https://github.com/code-corhuila/lms-catalog-portal/commit/061a8df8716d7271b9cfcf56637e011e6a11d3f6) | feat(catalog): add book and pagination types |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`08468e6`](https://github.com/code-corhuila/lms-catalog-portal/commit/08468e6144ac94594c8bdd3e5059a20d896ddc5d) | feat(shell): add ambient types for the lms-front api client and session |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`8b53476`](https://github.com/code-corhuila/lms-catalog-portal/commit/8b534763c24f4864cc57b06aa97969eb4694f0fe) | feat(catalog): add book registration form page (HU-04) |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`342727f`](https://github.com/code-corhuila/lms-catalog-portal/commit/342727f58493822e2f336c620bb9c5a4ca7fc7b7) | feat(ui): add empty state component |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`d9a48ed`](https://github.com/code-corhuila/lms-catalog-portal/commit/d9a48edb1762bf6721df06d7bd63b5d76257225a) | feat(ui): add card component |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`f31186b`](https://github.com/code-corhuila/lms-catalog-portal/commit/f31186b7288d1baec01a86a5f041db1aede972dd) | feat(portal): add standalone app route tree |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`609304b`](https://github.com/code-corhuila/lms-catalog-portal/commit/609304b374510177f669ca15039eb0619e5301d0) | feat(catalog): add catalog routes exposed to the shell |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`c3a0629`](https://github.com/code-corhuila/lms-catalog-portal/commit/c3a0629144aedbffb16bad6d54b424fbce2d5a80) | feat(catalog): add books list page with search and inline edit (HU-05, HU-09) |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`d377d2a`](https://github.com/code-corhuila/lms-catalog-portal/commit/d377d2a3d2473bb30387c83b0c311ed349061ea0) | chore(deploy): add nginx config with no-store for remote entry |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`ac06e14`](https://github.com/code-corhuila/lms-catalog-portal/commit/ac06e1491afd5d6a799ad78994a8c41cab08bb40) | feat(portal): add entry point that loads bootstrap dynamically |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`210e683`](https://github.com/code-corhuila/lms-catalog-portal/commit/210e6838117b4467d070d5f5369b2038b2070101) | feat(portal): add react bootstrap with browser router |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`a007b82`](https://github.com/code-corhuila/lms-catalog-portal/commit/a007b821022b51e937327ca503de837ffa4cabf7) | chore(deploy): add compose service on the lms network |
+| 2026-10-01 | code-corhuila/lms-catalog-portal | [`5cd5b74`](https://github.com/code-corhuila/lms-catalog-portal/commit/5cd5b74cf221be79c350931d4d8c0faf758648a3) | chore(deploy): add multi-stage dockerfile serving the build with nginx |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`450a76e`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/450a76e2b57bd5efdacaf508653414ede2dd07ba) | feat(catalog-portal): add Book and Paginated contract types |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`3f53ab7`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3f53ab7ce3e44f567e86696a87f9d6cb05a4fdd4) | feat(catalog-portal): add ambient types for shell apiClient and session remotes |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`ec1f698`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ec1f6983dd083576685337ad60f6134a3624e7fc) | feat(catalog-portal): add Card ui component |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`7993999`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/79939990c0244d95944c7814c697910cb71f4d69) | feat(catalog-portal): add Button ui component with variants and loading state |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`8f2c721`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f2c721f3af164bee3ac640d4f46c849db5d500d) | style(catalog-portal): add Tailwind entry with LMS design tokens |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`694f2a8`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/694f2a8d9ee2267a111bc0549d184736908c39f3) | feat(catalog-portal): add book registration form page (HU-04) |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`00d1057`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/00d105771458aec1d0598a81c9417694777cf6ba) | feat(catalog-portal): add EmptyState ui component |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`0b71eca`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0b71eca3ea1f5557d51346ee2516b0263844a958) | feat(catalog-portal): expose catalog routes for the shell |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`82a3082`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/82a30826360ddfcaee98b1b5940c1ffb4253b7ba) | feat(catalog-portal): add catalog search and inline edit page (HU-05, HU-09) |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`8eb5136`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8eb51369c48e061e20cf7fbeb41179d56eae1f7e) | feat(catalog-portal): add React bootstrap with BrowserRouter |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`b128261`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/b128261e4917fd899beb06da63153f4966c3d5d6) | feat(catalog-portal): add standalone App route tree |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`177ce96`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/177ce96b860f2318a5db22bb24df94c5b764582a) | build(catalog-portal): add nginx config with remoteEntry no-store caching |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`290f1ea`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/290f1ea8a54b8a54d47f4db551fbf4ddcbb46fa4) | feat(catalog-portal): add async entry point for Module Federation |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`3e9d154`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3e9d1549eec5cd40765a207b999e74578e76d1f3) | build(catalog-portal): add compose service on lms-network |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`ba98f99`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba98f997d651c8a521a465ddbf37ca3b04c16ad4) | build(catalog-portal): add multi-stage Node build and nginx runtime Dockerfile |
+| 2026-10-01 | MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2 | [`8aa18db`](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8aa18dbfba9ef8cb085496101252695f6dea11b7) | docs(hu-status): update week 09 status with catalog-portal pages and deploy |
+| 2026-10-03 | code-corhuila/lms-catalog-portal | [`6a7797f`](https://github.com/code-corhuila/lms-catalog-portal/commit/6a7797fa4e659bd88a01772fc6179efb567ec76b) | Merge pull request #3 from code-corhuila/chore/project-scaffold |
