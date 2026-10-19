@@ -26,6 +26,6 @@ The services involved live in the `code-corhuila` organization: `lms-circulation
 | CP3 | `03-instrumentation/` | done |
 | CP4 | `04-metrics.md` | done |
 | CP6 | `05-slo.md` | done |
-| CP7 | `06-alerts.yml`, `06-alert-policy.md` | todo |
+| CP7 | `06-alerts.yml`, `06-alert-policy.md` | done |
 | CP8 | `07-runbook.md` | todo |
 | CP9 | `08-incident.md` | todo |
