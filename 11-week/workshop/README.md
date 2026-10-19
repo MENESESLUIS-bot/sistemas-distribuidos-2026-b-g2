@@ -6,7 +6,7 @@
 - TEAM: LMS-Library
 - DOCS_REPO: https://github.com/code-corhuila/library-docs
 - REFLECTION_DOC: (pending — link added in the next checkpoint)
-- JOURNEY: (written in CP1)
+- JOURNEY: HU-06 Loan Registration — `POST /api/v1/loans` across lms-circulation-api, lms-membership-api and lms-catalog-api
 <!-- CONFIG-END -->
 
 ## Scope
@@ -21,7 +21,7 @@ The services involved live in the `code-corhuila` organization: `lms-circulation
 | CP | File | Status |
 |---|---|---|
 | CP0 | `README.md` | done |
-| CP1 | `01-journey.md` | todo |
+| CP1 | `01-journey.md` | done |
 | CP2 | `02-log-contract.md` | todo |
 | CP3 | `03-instrumentation/` | todo |
 | CP4 | `04-metrics.md` | todo |
