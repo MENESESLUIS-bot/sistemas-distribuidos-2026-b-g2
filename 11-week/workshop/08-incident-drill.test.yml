@@ -1,0 +1,38 @@
+# Replays the CP9 drill (08-incident.md) against 06-alerts.yml:
+#   promtool test rules 08-incident-drill.test.yml
+# 120 healthy minutes at 1 loan/min, then 40 minutes where 1 of 4 loans takes
+# 3 s (bucket le="0.6" grows 0.75/min while the count grows 1/min).
+rule_files:
+  - 06-alerts.yml
+evaluation_interval: 30s
+tests:
+  - interval: 1m
+    input_series:
+      - series: 'lms_circulation_loan_request_duration_seconds_bucket{route="/api/v1/loans",le="0.6"}'
+        values: '0+1x120 120.75+0.75x39'
+      - series: 'lms_circulation_loan_request_duration_seconds_count{route="/api/v1/loans"}'
+        values: '0+1x120 121+1x39'
+      - series: 'lms_circulation_loan_requests_total{route="/api/v1/loans",outcome="success"}'
+        values: '0+1x159'
+    alert_rule_test:
+      # minute 34 of the incident: not yet
+      - eval_time: 154m
+        alertname: LoanRegistrationLatencyFastBurn
+        exp_alerts: []
+      # minute 38: paging
+      - eval_time: 158m
+        alertname: LoanRegistrationLatencyFastBurn
+        exp_alerts:
+          - exp_labels:
+              severity: page
+              team: lms-library
+              service: lms-circulation-api
+              slo: loan-latency
+            exp_annotations:
+              summary: "HU-06 loan registration is too slow: latency budget burning 14.4x"
+              description: "16.1% of POST /api/v1/loans took more than 600 ms in the last hour (budget 1 %)."
+              runbook_url: "https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
+      # no request failed, so the availability alerts stay silent
+      - eval_time: 158m
+        alertname: LoanRegistrationAvailabilityFastBurn
+        exp_alerts: []
