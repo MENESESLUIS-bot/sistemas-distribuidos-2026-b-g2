@@ -28,4 +28,4 @@ The services involved live in the `code-corhuila` organization: `lms-circulation
 | CP6 | `05-slo.md` | done |
 | CP7 | `06-alerts.yml`, `06-alert-policy.md` | done |
 | CP8 | `07-runbook.md` | done |
-| CP9 | `08-incident.md` | todo |
+| CP9 | `08-incident.md` | done |
