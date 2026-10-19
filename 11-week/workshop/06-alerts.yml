@@ -1,0 +1,89 @@
+# Burn-rate alerts for SLO 1 (availability of POST /api/v1/loans, 99 % / 30 d)
+# and SLO 2 (99 % under 600 ms / 30 d) of 05-slo.md. Error budget = 1 % = 0.01.
+groups:
+  - name: lms-circulation-slo-recording
+    rules:
+      - record: lms_circulation:loan_error_ratio:rate5m
+        expr: |
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome="error"}[5m]))
+          /
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome!="client_error"}[5m]))
+      - record: lms_circulation:loan_error_ratio:rate30m
+        expr: |
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome="error"}[30m]))
+          /
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome!="client_error"}[30m]))
+      - record: lms_circulation:loan_error_ratio:rate1h
+        expr: |
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome="error"}[1h]))
+          /
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome!="client_error"}[1h]))
+      - record: lms_circulation:loan_error_ratio:rate6h
+        expr: |
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome="error"}[6h]))
+          /
+          sum(rate(lms_circulation_loan_requests_total{route="/api/v1/loans",outcome!="client_error"}[6h]))
+      - record: lms_circulation:loan_slow_ratio:rate5m
+        expr: |
+          1 - (
+            sum(rate(lms_circulation_loan_request_duration_seconds_bucket{route="/api/v1/loans",le="0.6"}[5m]))
+            /
+            sum(rate(lms_circulation_loan_request_duration_seconds_count{route="/api/v1/loans"}[5m]))
+          )
+      - record: lms_circulation:loan_slow_ratio:rate1h
+        expr: |
+          1 - (
+            sum(rate(lms_circulation_loan_request_duration_seconds_bucket{route="/api/v1/loans",le="0.6"}[1h]))
+            /
+            sum(rate(lms_circulation_loan_request_duration_seconds_count{route="/api/v1/loans"}[1h]))
+          )
+
+  - name: lms-circulation-slo-alerts
+    rules:
+      - alert: LoanRegistrationAvailabilityFastBurn
+        expr: |
+          lms_circulation:loan_error_ratio:rate1h > (14.4 * 0.01)
+          and
+          lms_circulation:loan_error_ratio:rate5m > (14.4 * 0.01)
+        for: 1m
+        labels:
+          severity: page
+          team: lms-library
+          service: lms-circulation-api
+          slo: loan-availability
+        annotations:
+          summary: "HU-06 loan registration is burning its 30-day error budget 14.4x too fast"
+          description: "{{ $value | humanizePercentage }} of POST /api/v1/loans failed in the last hour (budget 1 %). At this speed 2 % of the monthly budget is gone in 1 h."
+          runbook_url: "https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
+
+      - alert: LoanRegistrationAvailabilitySlowBurn
+        expr: |
+          lms_circulation:loan_error_ratio:rate6h > (6 * 0.01)
+          and
+          lms_circulation:loan_error_ratio:rate30m > (6 * 0.01)
+        for: 5m
+        labels:
+          severity: ticket
+          team: lms-library
+          service: lms-circulation-api
+          slo: loan-availability
+        annotations:
+          summary: "HU-06 loan registration is burning its 30-day error budget 6x too fast"
+          description: "{{ $value | humanizePercentage }} of POST /api/v1/loans failed in the last 6 h (budget 1 %). 5 % of the monthly budget is gone in 6 h."
+          runbook_url: "https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
+
+      - alert: LoanRegistrationLatencyFastBurn
+        expr: |
+          lms_circulation:loan_slow_ratio:rate1h > (14.4 * 0.01)
+          and
+          lms_circulation:loan_slow_ratio:rate5m > (14.4 * 0.01)
+        for: 1m
+        labels:
+          severity: page
+          team: lms-library
+          service: lms-circulation-api
+          slo: loan-latency
+        annotations:
+          summary: "HU-06 loan registration is too slow: latency budget burning 14.4x"
+          description: "{{ $value | humanizePercentage }} of POST /api/v1/loans took more than 600 ms in the last hour (budget 1 %)."
+          runbook_url: "https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/blob/main/11-week/workshop/07-runbook.md"
