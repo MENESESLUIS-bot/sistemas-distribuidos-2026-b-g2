@@ -1,0 +1,9 @@
+# Pre-commit secret scan (week 9, config hardening). One fingerprint per
+# line, not a blanket file/path ignore — a *new*, different secret landing
+# anywhere in .env.example still gets caught by gitleaks.
+#
+# .env.example:private-key:16 is the throwaway dev RSA keypair documented in
+# that same file ("NEVER reuse this exact pair anywhere but a local
+# machine") — intentionally committed so a reviewer can run the service
+# locally without generating their own key first. Not a leak.
+.env.example:private-key:16
