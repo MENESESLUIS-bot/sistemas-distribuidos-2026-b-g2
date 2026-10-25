@@ -1,0 +1,25 @@
+#!/bin/sh
+# Pre-commit secret scan (week 9, config hardening). Scans only what's
+# staged — not the whole history on every commit — so this stays fast.
+# Install once per clone: git config core.hooksPath .githooks
+#
+# Requires gitleaks (https://github.com/gitleaks/gitleaks) on PATH. Does
+# not fail the commit if gitleaks itself isn't installed — a missing
+# scanner blocking every commit for every contributor is a worse failure
+# mode than a missing scan; CI runs the same check as a backstop.
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks not found on PATH, skipping local scan (CI still runs it)" >&2
+  exit 0
+fi
+
+gitleaks protect --staged --redact -v
+status=$?
+
+if [ "$status" -ne 0 ]; then
+  echo "" >&2
+  echo "pre-commit: gitleaks found a likely secret in staged changes — see above." >&2
+  echo "If this is a known-safe placeholder, add its fingerprint to .gitleaksignore" >&2
+  echo "with a comment explaining why, not a blanket file/path ignore." >&2
+fi
+
+exit "$status"
