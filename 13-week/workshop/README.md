@@ -11,8 +11,8 @@
 - CLAIM_ISSUE: https://github.com/code-corhuila/library-docs/issues/34
 - LIBRARY_BOOK: (pending — filled after the library visit)
 - LIBRARY_RECORD_TIME: (pending)
-- PR: (written in CP2)
-- STORIES: (written in CP3)
+- PR: https://github.com/code-corhuila/library-docs/pull/36
+- STORIES: https://github.com/code-corhuila/library-docs/issues/37 (E, risk 9, P0), https://github.com/code-corhuila/library-docs/issues/38 (T, risk 9, P0), https://github.com/code-corhuila/library-docs/issues/39 (S, risk 6, P1)
 <!-- CONFIG-END -->
 
 ## Why this boundary
@@ -30,7 +30,7 @@ inventory at the circulation desk.
 |---|---|---|
 | CP0 | this README + claim issue | done |
 | CP1 | `01-attack-surface.md` | done |
-| CP2 | PR in `library-docs` (`05-architecture/security/stride-MENESESLUIS-bot.md`) | todo |
-| CP3 | three `[security]` issues in `library-docs` | todo |
+| CP2 | PR in `library-docs` (`05-architecture/security/stride-MENESESLUIS-bot.md`) | done |
+| CP3 | three `[security]` issues in `library-docs` | done |
 | CP4 | `04-security-ci/` | todo |
 | CP5 | peer review + `13-week/hu-status/README.md` | todo |
