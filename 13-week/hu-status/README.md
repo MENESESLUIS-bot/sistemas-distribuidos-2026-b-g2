@@ -8,7 +8,7 @@
 - FULL_NAME: Luis Alejandro Meneses
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
-- SPRINT_GOAL: Write the first `node --test` tests for `lms-access-api`: the `Administrator` aggregate of the Access domain (password hashing and authentication) and the `Login` use case, driven through fake ports so the domain and application layers are tested with no database or JWT I/O; and a multi-stage `Dockerfile` to package the service.
+- SPRINT_GOAL: Write the first `node --test` tests for `lms-access-api`: the `Administrator` aggregate of the Access domain (password hashing and authentication) and the `Login` use case, driven through fake ports so the domain and application layers are tested with no database or JWT I/O; and a multi-stage `Dockerfile` to package the service. W13 workshop: threat model of the trust boundary `lms-circulation-api` → `lms-catalog-api` (HU-06 `loan-copy`, HU-07 `return-copy`) and turn it into security backlog and CI gates.
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
@@ -18,6 +18,11 @@
 | W13-02 | `Login` use case tests with fake `administrators` and `tokens` ports | done | [dfe630b](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/dfe630b) |
 | W13-03 | Multi-stage `Dockerfile` (`node:22-alpine`, production deps only, port 8080) | done | [d22c456](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d22c456) |
 | W13-04 | Source under test (`src/domain/access/administrator.js`, `errors.js`, `src/application/usecase/login.js`) | todo |  |
+| W13-TM-CP0 | Claim trust boundary `lms-circulation-api` → `lms-catalog-api` | done | [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34), [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) |
+| W13-TM-CP1 | Attack surface map and trust boundaries | done | [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) |
+| W13-TM-CP2 | STRIDE on the boundary (PR in `library-docs`) | doing (open for review) | [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) |
+| W13-TM-CP3 | Three `[security]` stories in the team backlog | done | [#37](https://github.com/code-corhuila/library-docs/issues/37), [#38](https://github.com/code-corhuila/library-docs/issues/38), [#39](https://github.com/code-corhuila/library-docs/issues/39), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) |
+| W13-TM-CP4 | Security gates workflow and negative authorization test | done | [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) |
 
 ## 2. My individual contribution
 - `test/domain/administrator.test.js` (3 tests): `newAdministrator('alice', ...)` never keeps the plaintext password and stores a bcrypt hash (`$2...` prefix); `authenticate` does not throw on the correct password; `authenticate` throws `ErrInvalidCredentials` on a wrong one.
@@ -29,6 +34,11 @@
   - Build stage copies `package.json` (and `package-lock.json` if present) first and runs `npm install --omit=dev`, so the dependency layer is cached while only `src/` changes; then copies `src/`.
   - Run stage adds `ca-certificates` (TLS to PostgreSQL and other services) and copies only `node_modules`, `package.json` and `src/` from the builder, so tests, dev tools and the npm cache stay out of the image.
   - `EXPOSE 8080` matches `PORT=8080` in `.env.example`; `CMD ["node", "src/index.js"]` in exec form so Node receives `SIGTERM` directly on `docker stop`.
+- **W13 threat modeling workshop** (`13-week/workshop/`):
+  - `01-attack-surface.md`: Mermaid data flow of all LMS services (`lms-front`, `lms-access-api`, `lms-membership-api`, `lms-catalog-api`, `lms-circulation-api`, their databases, planned `lms-api-gateway`, `lms-broker`, `lms-iam`), trust boundaries TB1–TB6 with mine (TB4) highlighted, asset inventory and the entry points of TB4.
+  - PR library-docs#36 (`05-architecture/security/stride-MENESESLUIS-bot.md`): six STRIDE rows for the internal `loan-copy` / `return-copy` calls; top risks are E (no per-route scope, 9), T (lost/double decrement of `available_copies`, 9) and S (example `INTERNAL_JWT_SECRET`, 6).
+  - Issues #37 (P0), #38 (P0), #39 (P1) with user story, testable criteria (one automated test each) and the link to the PR.
+  - `04-security-ci/`: `security.yml` (gitleaks, govulncheck, authz tests; `actionlint` clean) and a minimal `lms-catalog-api` module with `RequireScope` and 4 negative tests (internal token on `DELETE /api/v1/books/{id}` → 403, Administrator token on `loan-copy` → 403), all passing.
 
 ## 3. Blockers and risks
 - The tests import `src/domain/access/administrator.js`, `src/domain/access/errors.js` and `src/application/usecase/login.js`, which are not in the folder yet, so `npm test` fails with module-not-found until the source is added.
@@ -36,12 +46,15 @@
 - The run stage has no `USER node`, so the container runs as root.
 - `package-lock.json` is gitignored, so the image uses `npm install` instead of `npm ci` and dependency versions are not pinned between builds.
 - `13-week/01-session` and `13-week/02-session` only contain `.gitkeep`.
+- The real `RequireAuth` of `lms-catalog-api` accepts the internal HS256 token on every `/books` route, and both `.env.example` files ship `INTERNAL_JWT_SECRET=change-me-internal-secret` (STRIDE rows E and S).
+- The library book (García Serrano, *Inteligencia artificial*, 2012, 006.3 G17i EJ.1, p. 171) is cited in row E of the STRIDE ([57c7019](https://github.com/code-corhuila/library-docs/commit/57c7019)) and in issue #37; it is not a security book, so its use is limited to the rule-based reasoning idea.
 
 ## 4. Plan for next week
 - Implement `newAdministrator` / `authenticate` with `bcryptjs` and the `ErrInvalidCredentials` / `ErrAdministratorNotFound` errors so the domain tests pass.
 - Implement the `Login` use case that maps "not found" to "invalid credentials", plus a PostgreSQL adapter for `administrators` and a JWT adapter for `tokens`.
 - Run `npm test` and `npm run lint` green and add an integration test for the HTTP login endpoint.
 - Add `USER node` to the run stage, a `HEALTHCHECK`, and switch to `npm ci` once `package-lock.json` is committed; then build and run the image with `--env-file .env`.
+- Workshop delivery 2: answer the review on PR library-docs#36, refine issues #37–#39, record the real output of the negative test and close the hu-status.
 
 ## 5. Compliance self-check
 - [x] Conventional Commits - `type(scope): summary`
@@ -55,3 +68,6 @@
 - Folder: [13-week/hu-status](./)
 - Files: [test/domain/administrator.test.js](test/domain/administrator.test.js), [test/application/login.test.js](test/application/login.test.js), [deploy/Dockerfile](deploy/Dockerfile)
 - Commits: [83d426c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/83d426c), [dfe630b](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/dfe630b), [68bce61](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/68bce61), [d22c456](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d22c456)
+- Workshop: [13-week/workshop](../workshop/) · claim [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34) · PR [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) · stories [#37](https://github.com/code-corhuila/library-docs/issues/37), [#38](https://github.com/code-corhuila/library-docs/issues/38), [#39](https://github.com/code-corhuila/library-docs/issues/39)
+- Workshop commits: [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) (CP0), [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) (CP1), library-docs [a953716](https://github.com/code-corhuila/library-docs/commit/a953716) / [030f0d6](https://github.com/code-corhuila/library-docs/commit/030f0d6) (CP2), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) (CP3), [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) (CP4)
+- Peer review: comment on Hermes's STRIDE PR [library-docs#40](https://github.com/code-corhuila/library-docs/pull/40) (missing Tampering threat: `Student.Suspend` overwrites `suspended_until` and `/suspend` has no idempotency key; row R `actor` is always `circulation-service`)
