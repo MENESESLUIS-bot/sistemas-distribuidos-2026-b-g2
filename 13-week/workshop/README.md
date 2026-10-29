@@ -32,5 +32,5 @@ inventory at the circulation desk.
 | CP1 | `01-attack-surface.md` | done |
 | CP2 | PR in `library-docs` (`05-architecture/security/stride-MENESESLUIS-bot.md`) | done |
 | CP3 | three `[security]` issues in `library-docs` | done |
-| CP4 | `04-security-ci/` | todo |
+| CP4 | `04-security-ci/` | done |
 | CP5 | peer review + `13-week/hu-status/README.md` | todo |
