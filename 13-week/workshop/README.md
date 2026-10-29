@@ -5,10 +5,10 @@
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
 - DOCS_REPO: https://github.com/code-corhuila/library-docs
-- REFLECTION_DOC: (pending)
+- REFLECTION_DOC: https://docs.google.com/document/d/1yi0_c2tiVAOLDE_Lyxr8Rf8MZUbYPpeg8hm70jFbBdE/edit?usp=sharing
 - JOURNEY: HU-06 Loan Registration (`POST /api/v1/loans`)
 - BOUNDARY: lms-circulation-api → lms-catalog-api (internal `POST /api/v1/books/{id}/loan-copy` and `/return-copy`)
-- CLAIM_ISSUE: (pending)
+- CLAIM_ISSUE: https://github.com/code-corhuila/library-docs/issues/34
 - LIBRARY_BOOK: (pending — filled after the library visit)
 - LIBRARY_RECORD_TIME: (pending)
 - PR: (written in CP2)
@@ -29,7 +29,7 @@ inventory at the circulation desk.
 | CP | Where | Status |
 |---|---|---|
 | CP0 | this README + claim issue | done |
-| CP1 | `01-attack-surface.md` | todo |
+| CP1 | `01-attack-surface.md` | done |
 | CP2 | PR in `library-docs` (`05-architecture/security/stride-MENESESLUIS-bot.md`) | todo |
 | CP3 | three `[security]` issues in `library-docs` | todo |
 | CP4 | `04-security-ci/` | todo |
