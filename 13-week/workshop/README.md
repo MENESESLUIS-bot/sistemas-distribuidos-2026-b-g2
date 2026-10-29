@@ -9,10 +9,10 @@
 - JOURNEY: HU-06 Loan Registration (`POST /api/v1/loans`)
 - BOUNDARY: lms-circulation-api → lms-catalog-api (internal `POST /api/v1/books/{id}/loan-copy` and `/return-copy`)
 - CLAIM_ISSUE: https://github.com/code-corhuila/library-docs/issues/34
-- LIBRARY_BOOK: (pending — filled after the library visit)
-- LIBRARY_RECORD_TIME: (pending)
-- PR: https://github.com/code-corhuila/library-docs/pull/36
-- STORIES: https://github.com/code-corhuila/library-docs/issues/37 (E, risk 9, P0), https://github.com/code-corhuila/library-docs/issues/38 (T, risk 9, P0), https://github.com/code-corhuila/library-docs/issues/39 (S, risk 6, P1)
+- LIBRARY_BOOK: García Serrano, Alberto. Inteligencia artificial: fundamentos, práctica y aplicaciones. 1.ª ed., 2012. Call number 006.3 G17i EJ.1. Page 171 (row E [B], issue #37)
+- LIBRARY_RECORD_TIME: 2026-10-29 (morning slot, 07:50–09:30)
+- PR: https://github.com/code-corhuila/library-docs/pull/36 (review addressed in https://github.com/code-corhuila/library-docs/pull/45)
+- STORIES: https://github.com/code-corhuila/library-docs/issues/37 (E, risk 9, P0, related #41), https://github.com/code-corhuila/library-docs/issues/38 (T+R, risk 9, P0, refined after review), https://github.com/code-corhuila/library-docs/issues/39 (S, risk 6, P1, related #42)
 <!-- CONFIG-END -->
 
 ## Why this boundary
@@ -34,3 +34,7 @@ inventory at the circulation desk.
 | CP3 | three `[security]` issues in `library-docs` | done |
 | CP4 | `04-security-ci/` | done |
 | CP5 | peer review + `13-week/hu-status/README.md` | done |
+| CP6 | review answered on #36, follow-up PR #45 | done |
+| CP7 | issues #37–#39 refined and linked to #41 / #42 | done |
+| CP8 | negative test output + workflow validation in `04-security-ci/HOW-TO-RUN.md` | todo |
+| CP9 | `13-week/hu-status/README.md` closed | todo |
