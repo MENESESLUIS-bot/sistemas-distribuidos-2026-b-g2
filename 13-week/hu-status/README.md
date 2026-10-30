@@ -8,7 +8,7 @@
 - FULL_NAME: Luis Alejandro Meneses
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
-- SPRINT_GOAL: Write the first `node --test` tests for `lms-access-api`: the `Administrator` aggregate of the Access domain (password hashing and authentication) and the `Login` use case, driven through fake ports so the domain and application layers are tested with no database or JWT I/O; and a multi-stage `Dockerfile` to package the service; then the hexagonal source for HU-01 (`POST /api/v1/auth/login`) that makes those tests pass. W13 workshop: threat model of the trust boundary `lms-circulation-api` → `lms-catalog-api` (HU-06 `loan-copy`, HU-07 `return-copy`) and turn it into security backlog and CI gates.
+- SPRINT_GOAL: Write the first `node --test` tests for `lms-access-api`: the `Administrator` aggregate of the Access domain (password hashing and authentication) and the `Login` use case, driven through fake ports so the domain and application layers are tested with no database or JWT I/O; and a multi-stage `Dockerfile` to package the service; then the hexagonal source for HU-01 (`POST /api/v1/auth/login`) that makes those tests pass; and start `lms-access-portal`, the Vue login remote loaded by `lms-front` through Module Federation. W13 workshop: threat model of the trust boundary `lms-circulation-api` → `lms-catalog-api` (HU-06 `loan-copy`, HU-07 `return-copy`) and turn it into security backlog and CI gates.
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
@@ -21,6 +21,9 @@
 | W13-05 | Config from env vars, pino logger and PostgreSQL adapter (`access.administrator`) | done | [483a367](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/483a367) |
 | W13-06 | RS256 JWT issuer, `/auth/login` and `/health` handlers | done | [577b783](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/577b783) |
 | W13-07 | Middleware (correlation ID, CORS, error envelope), router and `src/index.js` with graceful shutdown | done | [ba33b5f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba33b5f) |
+| W13-08 | `lms-access-portal` manifest, ignore rules and `.env.example` placeholder | done | [5e8b7da](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/5e8b7da) |
+| W13-09 | Vite Module Federation remote (`access_portal`) and TypeScript config | done | [b91999d](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/b91999d) |
+| W13-10 | Portal source (`src/main.ts`, `src/mount.ts`, `src/shims/shell.d.ts`) | todo |  |
 | W13-TM-CP0 | Claim trust boundary `lms-circulation-api` → `lms-catalog-api` | done | [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34), [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) |
 | W13-TM-CP1 | Attack surface map and trust boundaries | done | [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) |
 | W13-TM-CP2 | STRIDE on the boundary (PR in `library-docs`) | done | [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) |
@@ -37,16 +40,23 @@
   - Happy path returns a non-empty `accessToken` and `expiresIn = 3600`.
   - Unknown username (`ErrAdministratorNotFound` from the repository) and wrong password both reject with the same `ErrInvalidCredentials`, so the API does not reveal which usernames exist.
 - Both files use only the built-in `node:test` and `node:assert/strict`, matching the `test` script (`node --test`) from the week 12 `package.json`.
-- `deploy/Dockerfile`: two stages on `node:22-alpine` (same Node major as `engines` in `package.json`).
+- `deploy/Dockerfile`: two stages on `node:22-alpine` (same Node major as `engines` in the week 12 `package.json`).
   - Build stage copies `package.json` (and `package-lock.json` if present) first and runs `npm install --omit=dev`, so the dependency layer is cached while only `src/` changes; then copies `src/`.
   - Run stage adds `ca-certificates` (TLS to PostgreSQL and other services) and copies only `node_modules`, `package.json` and `src/` from the builder, so tests, dev tools and the npm cache stay out of the image.
-  - `EXPOSE 8080` matches `PORT=8080` in `.env.example`; `CMD ["node", "src/index.js"]` in exec form so Node receives `SIGTERM` directly on `docker stop`.
+  - `EXPOSE 8080` matches `PORT=8080` in the week 12 `.env.example`; `CMD ["node", "src/index.js"]` in exec form so Node receives `SIGTERM` directly on `docker stop`.
 - `src/` (16 files, hexagonal layout; the 6 tests above pass with `node --test`):
   - Domain (`src/domain/access/`): `Administrator` aggregate with `authenticate()`; `newAdministrator()` hashes with bcrypt cost 12 (NFR-004) and never keeps the plaintext (INV-001); `ErrInvalidCredentials` and `ErrAdministratorNotFound`. No I/O besides `bcryptjs`.
   - Application (`src/application/usecase/login.js`): `Login` gets its ports by constructor and maps "not found" and "wrong password" to the same `ErrInvalidCredentials` (INV-002).
-  - Driven adapters: `config/config.js` reads every variable of `.env.example`, fails fast without `JWT_PRIVATE_KEY` and turns the literal `\n` back into a PEM; `postgres/db.js` opens a `pg` pool and checks it with `SELECT 1`; `postgres/administratorRepository.js` uses parameterized queries on `access.administrator` (schema per domain, singular table); `auth/jwtIssuer.js` signs RS256 tokens with only `sub` (no role claim) and parses `JWT_EXPIRY` (`1h`, `30m`, `15s`); `logger/logger.js` is pino.
+  - Driven adapters: `config/config.js` reads every variable of the week 12 `.env.example`, fails fast without `JWT_PRIVATE_KEY` and turns the literal `\n` back into a PEM; `postgres/db.js` opens a `pg` pool and checks it with `SELECT 1`; `postgres/administratorRepository.js` uses parameterized queries on `access.administrator` (schema per domain, singular table); `auth/jwtIssuer.js` signs RS256 tokens with only `sub` (no role claim) and parses `JWT_EXPIRY` (`1h`, `30m`, `15s`); `logger/logger.js` is pino.
   - Driving adapters (`src/infrastructure/http/`): `POST /api/v1/auth/login` (400 on bad body, 401 `INVALID_CREDENTIALS`, 200 with `accessToken` + `expiresIn`), `GET /health` and `GET /health/ready` (DB ping with a 2 s bound, 503 when down), `X-Correlation-Id` middleware, CORS, and an error handler that returns the standard `{error, message, correlationId}` envelope.
   - `src/index.js` wires everything and closes the HTTP server and the pool on `SIGINT`/`SIGTERM`, with a 10 s forced exit.
+- `lms-access-portal` scaffold (Vue 3 + `vue-router`, TypeScript, Vite):
+  - `package.json`: scripts `dev`, `build` (`vue-tsc -b && vite build`), `lint` (`oxlint`) and `preview`; `@module-federation/vite` as a dev dependency.
+  - `vite.config.ts`: federated remote `access_portal` that exposes `./mount` in `remoteEntry.js` and consumes the `shell` remote of `lms-front`; dev server on port 3004. `vue` is not shared because the shell is React (ADR-011).
+  - `tsconfig.json` references `tsconfig.app.json` (strict, `noEmit`, `src/**`) and `tsconfig.node.json` (`vite.config.ts`).
+  - `index.html`: page titled `LMS — Access Portal` with the `#app` mount point and `/src/main.ts` as its entry.
+  - `.env.example`: comments only, because the portal reads no variables of its own (gateway URL, token and correlation come from the shell).
+  - `.gitignore`: `node_modules`, `dist`, the `.mf` cache, `.env` and `*.pem`.
 - **W13 threat modeling workshop** (`13-week/workshop/`):
   - `01-attack-surface.md`: Mermaid data flow of all LMS services (`lms-front`, `lms-access-api`, `lms-membership-api`, `lms-catalog-api`, `lms-circulation-api`, their databases, planned `lms-api-gateway`, `lms-broker`, `lms-iam`), trust boundaries TB1–TB6 with mine (TB4) highlighted, asset inventory and the entry points of TB4.
   - PR library-docs#36 (`05-architecture/security/stride-MENESESLUIS-bot.md`): six STRIDE rows for the internal `loan-copy` / `return-copy` calls; top risks are E (no per-route scope, 9), T (lost/double decrement of `available_copies`, 9) and S (example `INTERNAL_JWT_SECRET`, 6).
@@ -57,7 +67,10 @@
   - Workflow executed on GitHub Actions from `.github/workflows/security.yml` of this fork: negative tests and `govulncheck` pass, `gitleaks` fails on one true positive. Removing `RequireScope` in a temporary copy makes both negative tests fail with 200 instead of 403, so the tests really protect the rule.
 
 ## 3. Blockers and risks
-- `package.json`, `.env.example` and `.dockerignore` live in `12-week/hu-status`, so `npm test` and `docker build` cannot run from this folder; the tests were checked by copying `src/`, `test/` and that `package.json` together.
+- This folder now mixes two packages: `src/` and `test/` belong to `lms-access-api`, but `package.json` and `.env.example` belong to `lms-access-portal`. `npm test` stops with `Missing script: "test"`, and the manifest has none of the API dependencies (`express`, `pg`, `jsonwebtoken`, `bcryptjs`, `pino`), so `deploy/Dockerfile` would build an image that cannot start `src/index.js`.
+- The API manifest, its `.env.example` and `.dockerignore` are still in `12-week/hu-status`; the 6 tests were last checked by copying `src/`, `test/` and that `package.json` together.
+- The portal cannot build yet: `src/main.ts`, `src/mount.ts` and `src/shims/shell.d.ts` do not exist, and `tsconfig.app.json` finds no TypeScript in `src/`.
+- `vite.config.ts` has the shell URL fixed to `http://localhost:3000/remoteEntry.js`, so it needs a per-environment value before any deploy outside local development.
 - `config.js` falls back to `lms_user` / `lms_password` and `CORS_ORIGIN=*` when the variables are missing, so a misconfigured deploy starts with weak defaults instead of failing.
 - An unknown username returns without running bcrypt, while a wrong password takes about 250 ms (cost 12), so response time can still reveal which usernames exist despite INV-002; `compareSync` also blocks the event loop.
 - No HTTP or repository tests yet, and there is no migration that creates `access.administrator` or seeds the first Administrator.
@@ -72,7 +85,8 @@
 - My review on PR library-docs#40 was submitted as an approval, while CP5 asked for a comment only.
 
 ## 4. Plan for next week
-- Put `package.json`, `.env.example` and `.dockerignore` next to `src/` so `npm test`, `npm run lint` and `docker build` run from one folder.
+- Separate `lms-access-api` and `lms-access-portal` into their own folders, each with its manifest and `.env.example`, so `npm test`, `npm run lint`, `npm run build` and `docker build` run from the right package.
+- Add the portal source (`src/main.ts`, `src/mount.ts`, the shell type shims and the login screen) and make the shell URL configurable per environment.
 - Compare against a dummy hash when the username is unknown and switch to async `bcrypt.compare`; remove the DB credential fallbacks.
 - Add an integration test for `POST /api/v1/auth/login` (200 / 400 / 401) and the `access.administrator` migration with a seed Administrator.
 - Add `USER node` to the run stage, a `HEALTHCHECK`, and switch to `npm ci` once `package-lock.json` is committed; then build and run the image with `--env-file .env`.
@@ -89,8 +103,8 @@
 
 ## 6. Evidence links
 - Folder: [13-week/hu-status](./)
-- Files: [test/domain/administrator.test.js](test/domain/administrator.test.js), [test/application/login.test.js](test/application/login.test.js), [deploy/Dockerfile](deploy/Dockerfile), [src/](src/) ([index.js](src/index.js), [login.js](src/application/usecase/login.js), [administrator.js](src/domain/access/administrator.js), [router.js](src/infrastructure/http/router.js))
-- Commits: [83d426c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/83d426c), [dfe630b](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/dfe630b), [68bce61](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/68bce61), [d22c456](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d22c456), [0bb0a25](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0bb0a25), [483a367](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/483a367), [577b783](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/577b783), [ba33b5f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba33b5f)
+- Files: [test/domain/administrator.test.js](test/domain/administrator.test.js), [test/application/login.test.js](test/application/login.test.js), [deploy/Dockerfile](deploy/Dockerfile), [src/](src/) ([index.js](src/index.js), [login.js](src/application/usecase/login.js), [administrator.js](src/domain/access/administrator.js), [router.js](src/infrastructure/http/router.js)), [package.json](package.json), [vite.config.ts](vite.config.ts), [index.html](index.html), [tsconfig.json](tsconfig.json), [tsconfig.app.json](tsconfig.app.json), [tsconfig.node.json](tsconfig.node.json), [.env.example](.env.example), [.gitignore](.gitignore)
+- Commits: [83d426c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/83d426c), [dfe630b](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/dfe630b), [68bce61](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/68bce61), [d22c456](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d22c456), [0bb0a25](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0bb0a25), [483a367](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/483a367), [577b783](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/577b783), [ba33b5f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba33b5f), [5e8b7da](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/5e8b7da), [b91999d](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/b91999d)
 - Workshop: [13-week/workshop](../workshop/) · claim [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34) · PR [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) · stories [#37](https://github.com/code-corhuila/library-docs/issues/37), [#38](https://github.com/code-corhuila/library-docs/issues/38), [#39](https://github.com/code-corhuila/library-docs/issues/39)
 - Workshop commits: [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) (CP0), [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) (CP1), library-docs [a953716](https://github.com/code-corhuila/library-docs/commit/a953716) / [030f0d6](https://github.com/code-corhuila/library-docs/commit/030f0d6) (CP2), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) (CP3), [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) (CP4), [7912ed7](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7912ed7) (CP5)
 - Delivery 2 commits: library-docs [f043c90](https://github.com/code-corhuila/library-docs/commit/f043c90) (CP6), [318ac3f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/318ac3f) (CP7), [78dd941](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/78dd941) / [2127a4c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/2127a4c) / [e9e7f04](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e9e7f04) (CP8)
