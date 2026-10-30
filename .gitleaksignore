@@ -1,0 +1,5 @@
+# False positives reviewed on 2026-10-30.
+# authz_negative_test.go: fixed secret used only by the negative authorization tests.
+9c17230aff9545907ba3be09408238433862c626:13-week/workshop/04-security-ci/lms-catalog-api/internal/httpapi/authz_negative_test.go:generic-api-key:19
+# access-service.yaml: example value of accessToken in the OpenAPI contract, not a real token.
+2a8231b2be52c13acfdb88446ae6c8a0f4889693:06-week/hu-status/access-service.yaml:generic-api-key:80
