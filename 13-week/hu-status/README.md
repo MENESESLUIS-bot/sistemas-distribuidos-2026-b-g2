@@ -23,9 +23,13 @@
 | W13-07 | Middleware (correlation ID, CORS, error envelope), router and `src/index.js` with graceful shutdown | done | [ba33b5f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba33b5f) |
 | W13-TM-CP0 | Claim trust boundary `lms-circulation-api` → `lms-catalog-api` | done | [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34), [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) |
 | W13-TM-CP1 | Attack surface map and trust boundaries | done | [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) |
-| W13-TM-CP2 | STRIDE on the boundary (PR in `library-docs`) | doing (open for review) | [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) |
+| W13-TM-CP2 | STRIDE on the boundary (PR in `library-docs`) | done | [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) |
 | W13-TM-CP3 | Three `[security]` stories in the team backlog | done | [#37](https://github.com/code-corhuila/library-docs/issues/37), [#38](https://github.com/code-corhuila/library-docs/issues/38), [#39](https://github.com/code-corhuila/library-docs/issues/39), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) |
 | W13-TM-CP4 | Security gates workflow and negative authorization test | done | [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) |
+| W13-TM-CP5 | Peer review of the circulation → membership STRIDE | done | [library-docs#40](https://github.com/code-corhuila/library-docs/pull/40), [7912ed7](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7912ed7) |
+| W13-TM-CP6 | Answer the review and finish the STRIDE | done | [library-docs#45](https://github.com/code-corhuila/library-docs/pull/45), [f043c90](https://github.com/code-corhuila/library-docs/commit/f043c90) |
+| W13-TM-CP7 | Refine the security backlog | done | [318ac3f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/318ac3f) |
+| W13-TM-CP8 | Run the negative test and the workflow | done | [e9e7f04](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e9e7f04), [Actions run](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/actions/runs/41092565678) |
 
 ## 2. My individual contribution
 - `test/domain/administrator.test.js` (3 tests): `newAdministrator('alice', ...)` never keeps the plaintext password and stores a bcrypt hash (`$2...` prefix); `authenticate` does not throw on the correct password; `authenticate` throws `ErrInvalidCredentials` on a wrong one.
@@ -48,6 +52,9 @@
   - PR library-docs#36 (`05-architecture/security/stride-MENESESLUIS-bot.md`): six STRIDE rows for the internal `loan-copy` / `return-copy` calls; top risks are E (no per-route scope, 9), T (lost/double decrement of `available_copies`, 9) and S (example `INTERNAL_JWT_SECRET`, 6).
   - Issues #37 (P0), #38 (P0), #39 (P1) with user story, testable criteria (one automated test each) and the link to the PR.
   - `04-security-ci/`: `security.yml` (gitleaks, govulncheck, authz tests; `actionlint` clean) and a minimal `lms-catalog-api` module with `RequireScope` and 4 negative tests (internal token on `DELETE /api/v1/books/{id}` → 403, Administrator token on `loan-copy` → 403), all passing.
+  - Review answered (PR library-docs#45): row T (b) rewritten after @Hermesss29's comment, because in `RegisterLoan` the `Loan` is created after `loan-copy`, so the key is the `Idempotency-Key` of the original `POST /api/v1/loans`, plus a `return-copy` compensation; row R gets a daily orphan-copy check; new residual-risk paragraph and a review log.
+  - Issue #38 rewritten with those criteria; #37 linked to #41 and #39 linked to #42 (Hermes's stories).
+  - Workflow executed on GitHub Actions from `.github/workflows/security.yml` of this fork: negative tests and `govulncheck` pass, `gitleaks` fails on one true positive. Removing `RequireScope` in a temporary copy makes both negative tests fail with 200 instead of 403, so the tests really protect the rule.
 
 ## 3. Blockers and risks
 - `package.json`, `.env.example` and `.dockerignore` live in `12-week/hu-status`, so `npm test` and `docker build` cannot run from this folder; the tests were checked by copying `src/`, `test/` and that `package.json` together.
@@ -59,13 +66,18 @@
 - `13-week/01-session` and `13-week/02-session` only contain `.gitkeep`.
 - The real `RequireAuth` of `lms-catalog-api` accepts the internal HS256 token on every `/books` route, and both `.env.example` files ship `INTERNAL_JWT_SECRET=change-me-internal-secret` (STRIDE rows E and S).
 - The library book (García Serrano, *Inteligencia artificial*, 2012, 006.3 G17i EJ.1, p. 171) is cited in row E of the STRIDE ([57c7019](https://github.com/code-corhuila/library-docs/commit/57c7019)) and in issue #37; it is not a security book, so its use is limited to the rule-based reasoning idea.
+- `gitleaks` found a true positive: `JWT_PRIVATE_KEY` in `12-week/hu-status/.env.example` of this public fork is the pair of the `JWT_PUBLIC_KEY` in the `.env.example` of `lms-catalog-api`, `lms-circulation-api` and `lms-membership-api`. It stays in the history (no rewrites), so a new pair must be generated for every shared environment. I could not verify which key `lms-pod` uses.
+- `govulncheck` shows 8 reachable standard library vulnerabilities on Go 1.25.1, the version of the team's Go services; they need Go 1.26.9.
+- PR library-docs#36 was merged by its own author, against rule 8 of the workshop. Revert PR library-docs#44 is open and undecided; merging it would remove the STRIDE from `main`.
+- My review on PR library-docs#40 was submitted as an approval, while CP5 asked for a comment only.
 
 ## 4. Plan for next week
 - Put `package.json`, `.env.example` and `.dockerignore` next to `src/` so `npm test`, `npm run lint` and `docker build` run from one folder.
 - Compare against a dummy hash when the username is unknown and switch to async `bcrypt.compare`; remove the DB credential fallbacks.
 - Add an integration test for `POST /api/v1/auth/login` (200 / 400 / 401) and the `access.administrator` migration with a seed Administrator.
 - Add `USER node` to the run stage, a `HEALTHCHECK`, and switch to `npm ci` once `package-lock.json` is committed; then build and run the image with `--env-file .env`.
-- Workshop delivery 2: answer the review on PR library-docs#36, refine issues #37–#39, record the real output of the negative test and close the hu-status.
+- Rotate the RS256 key pair and replace the example values in the team `.env.example` files.
+- Start with story #37 (per-route scopes) in `lms-catalog-api` and move `security.yml` to the `.github/workflows/` of that repository, on Go 1.26.9.
 
 ## 5. Compliance self-check
 - [x] Conventional Commits - `type(scope): summary`
@@ -73,12 +85,13 @@
 - [x] Testable acceptance criteria
 - [x] Tests added/updated (unit / integration)
 - [x] DDD / hexagonal boundaries respected (domain has no I/O)
-- [x] No secrets; config via environment variables
+- [ ] No secrets; config via environment variables (`gitleaks` finding, see section 3)
 
 ## 6. Evidence links
 - Folder: [13-week/hu-status](./)
 - Files: [test/domain/administrator.test.js](test/domain/administrator.test.js), [test/application/login.test.js](test/application/login.test.js), [deploy/Dockerfile](deploy/Dockerfile), [src/](src/) ([index.js](src/index.js), [login.js](src/application/usecase/login.js), [administrator.js](src/domain/access/administrator.js), [router.js](src/infrastructure/http/router.js))
 - Commits: [83d426c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/83d426c), [dfe630b](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/dfe630b), [68bce61](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/68bce61), [d22c456](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d22c456), [0bb0a25](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0bb0a25), [483a367](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/483a367), [577b783](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/577b783), [ba33b5f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ba33b5f)
 - Workshop: [13-week/workshop](../workshop/) · claim [library-docs#34](https://github.com/code-corhuila/library-docs/issues/34) · PR [library-docs#36](https://github.com/code-corhuila/library-docs/pull/36) · stories [#37](https://github.com/code-corhuila/library-docs/issues/37), [#38](https://github.com/code-corhuila/library-docs/issues/38), [#39](https://github.com/code-corhuila/library-docs/issues/39)
-- Workshop commits: [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) (CP0), [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) (CP1), library-docs [a953716](https://github.com/code-corhuila/library-docs/commit/a953716) / [030f0d6](https://github.com/code-corhuila/library-docs/commit/030f0d6) (CP2), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) (CP3), [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) (CP4)
+- Workshop commits: [0f6d072](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/0f6d072) (CP0), [be13d37](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/be13d37) (CP1), library-docs [a953716](https://github.com/code-corhuila/library-docs/commit/a953716) / [030f0d6](https://github.com/code-corhuila/library-docs/commit/030f0d6) (CP2), [7567c76](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7567c76) (CP3), [8f4eb57](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8f4eb57) (CP4), [7912ed7](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/7912ed7) (CP5)
+- Delivery 2 commits: library-docs [f043c90](https://github.com/code-corhuila/library-docs/commit/f043c90) (CP6), [318ac3f](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/318ac3f) (CP7), [78dd941](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/78dd941) / [2127a4c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/2127a4c) / [e9e7f04](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e9e7f04) (CP8)
 - Peer review: comment on Hermes's STRIDE PR [library-docs#40](https://github.com/code-corhuila/library-docs/pull/40) (missing Tampering threat: `Student.Suspend` overwrites `suspended_until` and `/suspend` has no idempotency key; row R `actor` is always `circulation-service`)

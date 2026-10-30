@@ -37,4 +37,4 @@ inventory at the circulation desk.
 | CP6 | review answered on #36, follow-up PR #45 | done |
 | CP7 | issues #37–#39 refined and linked to #41 / #42 | done |
 | CP8 | negative test output + workflow validation in `04-security-ci/HOW-TO-RUN.md` | done |
-| CP9 | `13-week/hu-status/README.md` closed | todo |
+| CP9 | `13-week/hu-status/README.md` closed | done |
