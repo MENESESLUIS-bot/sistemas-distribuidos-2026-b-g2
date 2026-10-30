@@ -2,6 +2,7 @@
 # Runs on every pull request; any red step blocks the merge.
 #   1. gitleaks       - no secret (INTERNAL_JWT_SECRET, DB_PASSWORD, JWT keys) committed
 #   2. govulncheck    - known vulnerabilities in the Go dependencies actually called
+#                       (needs Go 1.26.9: on 1.25.1 it finds 8 reachable stdlib issues)
 #   3. authz tests    - negative authorization tests of the [security] story for
 #                       STRIDE row E (PR #36): wrong token on a route -> 403
 name: security
@@ -37,7 +38,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25.1"
+          go-version: "1.26.9"
           cache-dependency-path: ${{ env.SERVICE_DIR }}/go.sum
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@v1.1.4
@@ -53,7 +54,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.25.1"
+          go-version: "1.26.9"
           cache-dependency-path: ${{ env.SERVICE_DIR }}/go.sum
       - name: Wrong token on a /api/v1/books route must answer 403
         working-directory: ${{ env.SERVICE_DIR }}
