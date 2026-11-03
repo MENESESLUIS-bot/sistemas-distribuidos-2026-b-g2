@@ -1,0 +1,19 @@
+# Runs this portal alone, built and served by nginx — for local development
+# or preview against a real lms-front. lms-infra composes every service
+# together later (rules/2-anexos/G-infra.md); this file is not that
+# composition.
+services:
+  access-portal:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    container_name: access-portal
+    restart: unless-stopped
+    ports:
+      - "3004:80"
+    networks:
+      - lms-network
+
+networks:
+  lms-network:
+    external: true
