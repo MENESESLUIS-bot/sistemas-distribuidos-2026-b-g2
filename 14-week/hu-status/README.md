@@ -5,33 +5,55 @@
 # Weekly Status - Week 14
 
 <!-- CONFIG-START - must match your profile repo (username/username) CONFIG -->
-- FULL_NAME:
-- GITHUB_USER:
-- TEAM:
-- SPRINT_GOAL:
+- FULL_NAME: Luis Alejandro Meneses
+- GITHUB_USER: MENESESLUIS-bot
+- TEAM: LMS-Library
+- SPRINT_GOAL: Continue `lms-access-portal`, the Vue login remote that `lms-front` loads through Module Federation: add the standalone entry point (`src/main.ts`) and `App.vue` wrapper so the portal can run outside the shell, the Vite/Vue type declarations, and a first production build (`dist/`) that publishes `remoteEntry.js` with the `mountAccessLogin` export; plus the nginx config and compose file that serve that build (committed under `13-week/hu-status/deploy/`).
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
 | HU ID | Title | Status (todo/doing/done) | Evidence (PR or commit URL) |
 |---|---|---|---|
-| HU-XXX-001 |  |  |  |
+| W14-01 | Standalone entry (`src/main.ts`), `App.vue` wrapper and `src/env.d.ts` | done | [d4b4a53](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d4b4a53) |
+| W14-02 | nginx config (no-cache `remoteEntry.js`, immutable `/assets/`) and `compose.yml` for the portal | done | [deb0b54](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/deb0b54) |
+| W14-03 | Production build of the federated remote (`dist/`, not committed) | done | [.gitignore](.gitignore) |
+| W14-04 | Portal source still missing here: `src/router`, `src/mount.ts`, `LoginView` | doing |  |
 
 ## 2. My individual contribution
--
+- `src/main.ts`: standalone-dev entry; creates the Vue app with `App` and `router` and mounts it on `#app`. It is only used by `npm run dev` outside the shell; when `lms-front` composes the portal it loads `mount.ts` instead.
+- `src/App.vue`: minimal wrapper with a single `<router-view />`, so the portal can be previewed in isolation.
+- `src/env.d.ts`: `vite/client` types and a `*.vue` module declaration, so `vue-tsc` type-checks the `.vue` imports.
+- Build output (`dist/`, generated locally, ignored by git):
+  - `remoteEntry.js` is the federated entry of `access_portal`; `@mf-types/compiled-types/src/mount.d.ts` publishes `mountAccessLogin(el, onAuthenticated): () => void` for the shell.
+  - `assets/` holds content-hashed chunks (`LoginView-*.js/.css`, shared-import map, `loadRemote` stubs for `shell/apiClient` and `shell/session`).
+  - `index.html` is titled `LMS — Access Portal` and preloads the shell remote from `http://localhost:3000/remoteEntry.js`.
+- `.gitignore`: `node_modules`, `dist`, the `.mf` cache, `.env` and `*.pem`, so the build is not committed.
+- `13-week/hu-status/deploy/nginx.conf`: `remoteEntry.js` with `Cache-Control: no-store` (H-front rule 4, so a deployed fix always reaches the browser), `/assets/` cached for one year as `immutable`, CORS `*` on both, SPA fallback to `index.html`, and a local-only `/api/v1/` proxy to `access-service:8080` while `lms-api-gateway` does not exist.
+- `13-week/hu-status/deploy/compose.yml`: service `access-portal` on port `3004:80`, on the external `lms-network`; it runs the portal alone and is not the `lms-infra` composition.
 
 ## 3. Blockers and risks
--
+- `src/main.ts` imports `./router`, but there is no `src/router` in this folder, and `src/mount.ts` and `LoginView` only exist in the build output; the source that produced `dist/` is not committed here, so the portal cannot be rebuilt from this folder.
+- This folder has no `package.json`, `vite.config.ts`, `index.html` or tsconfig files; they are in `13-week/hu-status`, so `npm run dev` / `npm run build` cannot run from `14-week/hu-status`.
+- `compose.yml` builds `deploy/Dockerfile`, but that Dockerfile is the Node image of `lms-access-api` (`EXPOSE 8080`, `node src/index.js`) and does not copy `dist/` into nginx, while compose maps port `80`. The portal needs its own nginx Dockerfile.
+- The shell URL is still fixed to `http://localhost:3000/remoteEntry.js` in the build, so it needs a per-environment value before any deploy outside local development.
+- CORS `*` on `remoteEntry.js` and `/assets/` is acceptable for static files but should be narrowed to the `lms-front` origin once it is known.
+- `14-week/01-session` and `14-week/02-session` are empty.
 
 ## 4. Plan for next week
--
+- Move the full portal (manifest, `vite.config.ts`, `src/router`, `src/mount.ts`, `LoginView`) into one folder so `npm run build` reproduces `dist/`.
+- Write an nginx multi-stage Dockerfile for the portal (`node:22-alpine` build → `nginx:alpine` with `nginx.conf` and `dist/`) and point `compose.yml` to it.
+- Make the shell `remoteEntry.js` URL configurable per environment.
+- Connect the login screen to `POST /api/v1/auth/login` of `lms-access-api` and add a test for `mountAccessLogin` (mount, `onAuthenticated` callback, unmount).
 
 ## 5. Compliance self-check
-- [ ] Conventional Commits - `type(scope): summary`
+- [x] Conventional Commits - `type(scope): summary`
 - [ ] Per-environment HU branch + PR to that environment (hu-xxx-dev -> develop, ...)
-- [ ] Testable acceptance criteria
+- [x] Testable acceptance criteria
 - [ ] Tests added/updated (unit / integration)
-- [ ] DDD / hexagonal boundaries respected (domain has no I/O)
-- [ ] No secrets; config via environment variables
+- [x] DDD / hexagonal boundaries respected (domain has no I/O)
+- [x] No secrets; config via environment variables (`.env` and `*.pem` ignored)
 
 ## 6. Evidence links
--
+- Folder: [14-week/hu-status](./)
+- Files: [src/main.ts](src/main.ts), [src/App.vue](src/App.vue), [src/env.d.ts](src/env.d.ts), [.gitignore](.gitignore), [nginx.conf](../../13-week/hu-status/deploy/nginx.conf), [compose.yml](../../13-week/hu-status/deploy/compose.yml)
+- Commits: [deb0b54](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/deb0b54), [d4b4a53](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d4b4a53)
