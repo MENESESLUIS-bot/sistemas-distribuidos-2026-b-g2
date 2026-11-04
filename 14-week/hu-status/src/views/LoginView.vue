@@ -87,3 +87,100 @@ async function handleSubmit() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.access-login {
+  display: flex;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  padding: 0 1rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+.access-login__card {
+  width: 100%;
+  max-width: 24rem;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  padding: 2rem;
+}
+.access-login__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+.access-login__logo {
+  display: flex;
+  height: 3rem;
+  width: 3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  background-color: #2563eb;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.access-login__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+.access-login__subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+.access-login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.access-login__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #334155;
+}
+.access-login__input {
+  width: 100%;
+  border-radius: 0.5rem;
+  border: 1px solid #cbd5e1;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+.access-login__input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+.access-login__error {
+  border-radius: 0.5rem;
+  background-color: #fff1f2;
+  color: #e11d48;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+.access-login__submit {
+  width: 100%;
+  border-radius: 0.5rem;
+  background-color: #2563eb;
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem;
+  border: none;
+  cursor: pointer;
+}
+.access-login__submit:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+</style>
