@@ -1,36 +1,27 @@
-# Certification C3 — Luis Alejandro Meneses
+# Certification C3 — Luis Alejandro Meneses Hernandez
 
 ## Cover
 
 | Field | Value |
 |---|---|
-| Full name | Luis Alejandro Meneses |
+| Full name | Luis Alejandro Meneses Hernandez |
 | GitHub user | MENESESLUIS-bot |
 | Group | G2 |
 | Team | LMS-Library |
 | Team -docs repository | https://github.com/code-corhuila/library-docs |
 | Course | HCCDP-Solution Architectures Course |
 | Course link | https://e.huawei.com/en/talent/ict-academy/#/ictcourses-detail?courseId=6WtKiPd1S1YelBB0AUbE1vXlPgk |
-| Start date | <YYYY-MM-DD> |
-| Completion date | <YYYY-MM-DD> |
+| Start date | 2026-11-03 |
+| Completion date | 2026-11-03 |
+
+Certificate of Completion: `certificate.pdf` (code ICT20261103000003, issue date 2026-11-03).
 
 ## Study log
 
 | Date | Hours | Chapters or labs | Evidence file |
 |---|---|---|---|
-| <YYYY-MM-DD> | <h> | Pre-class Guidance, Chapter 1 Architecture Design Methodology on Huawei Cloud | evidence/00-enrollment.png, evidence/01-chapter-01.png |
-| <YYYY-MM-DD> | <h> | Chapter 2 Typical Service Implementation Solutions on the Cloud | evidence/02-chapter-02.png |
-| <YYYY-MM-DD> | <h> | Chapter 3 Cloud Compute Solution Design | evidence/03-chapter-03.png |
-| <YYYY-MM-DD> | <h> | Chapter 4 Cloud Storage Solution Design | evidence/04-chapter-04.png |
-| <YYYY-MM-DD> | <h> | Chapter 5 Cloud Network Solution Design, Chapter 6 Cloud Database Solution Design | evidence/05-chapter-05.png, evidence/06-chapter-06.png |
-| <YYYY-MM-DD> | <h> | Chapter 7 Cloud Security Solution Design | evidence/07-chapter-07.png |
-| <YYYY-MM-DD> | <h> | Chapter 8 Cloud O&M Solution Design | evidence/08-chapter-08.png |
-| <YYYY-MM-DD> | <h> | Chapter 9 Distributed Architecture Design | evidence/09-chapter-09.png |
-| <YYYY-MM-DD> | <h> | Chapter 10 Highly Scalable System Design, Chapter 11 Disaster Recovery System Design | evidence/10-chapter-10.png, evidence/11-chapter-11.png |
-| <YYYY-MM-DD> | <h> | Chapter 12 Automated Deployment, Chapter 13 Containers and Agility | evidence/12-chapter-12.png, evidence/13-chapter-13.png |
-| <YYYY-MM-DD> | <h> | Chapter 14 Huawei Cloud Advanced Services, Lab 1, Lab 2 | evidence/14-chapter-14.png, evidence/15-lab-1.png, evidence/16-lab-2.png |
-| <YYYY-MM-DD> | <h> | Lab 3, Lab 4, Final Exam | evidence/17-lab-3.png, evidence/18-lab-4.png, evidence/19-final-exam.png |
-| Total | <sum> | | |
+| 2026-11-03 | 0.67 | Enrollment and Pre-class Guidance; Chapters 1 to 14; Lab 1 — Design Cases and Practices of an O&M Solution; Lab 2 — High-Performance Network Solution; Lab 3 — Highly Elastic Service System; Lab 4 — Highly Reliable Database Solution; Final exam | evidence/00-enrollment.png to evidence/14-chapter-14.png, evidence/15-lab-1.png, evidence/16-lab-2.png, evidence/17-lab-3.png, evidence/18-lab-4.png, evidence/19-final-exam.png |
+| Total | 0.67 | | |
 
 ## Labs
 
@@ -43,8 +34,8 @@
 
 ## Final exam
 
-- Score: 82/100 (passing score 70/100)
-- Date: <YYYY-MM-DD>
+- Score: 82 points (Passed, passing score 70/100)
+- Date: 2026-11-03
 - Evidence: evidence/19-final-exam.png
 
 ## Skills summary
