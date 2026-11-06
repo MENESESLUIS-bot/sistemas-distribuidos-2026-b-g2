@@ -8,7 +8,7 @@
 - FULL_NAME: Luis Alejandro Meneses
 - GITHUB_USER: MENESESLUIS-bot
 - TEAM: LMS-Library
-- SPRINT_GOAL: Continue `lms-access-portal`, the Vue login remote that `lms-front` loads through Module Federation: add the standalone entry point (`src/main.ts`) and `App.vue` wrapper so the portal can run outside the shell, the Vite/Vue type declarations, the ambient types of the `shell` remotes and the HU-01 login view (`LoginView.vue`), the `useSession` composable, the federated `mountAccessLogin` (`mount.ts`) and the standalone router, and a first production build (`dist/`) that publishes `remoteEntry.js` with the `mountAccessLogin` export; plus the nginx config and compose file that serve that build (committed under `13-week/hu-status/deploy/`).
+- SPRINT_GOAL: Continue `lms-access-portal`, the Vue login remote that `lms-front` loads through Module Federation: add the standalone entry point (`src/main.ts`) and `App.vue` wrapper so the portal can run outside the shell, the Vite/Vue type declarations, the ambient types of the `shell` remotes and the HU-01 login view (`LoginView.vue`), the `useSession` composable, the federated `mountAccessLogin` (`mount.ts`) and the standalone router, and a first production build (`dist/`) that publishes `remoteEntry.js` with the `mountAccessLogin` export; plus the nginx config and compose file that serve that build (committed under `13-week/hu-status/deploy/`). Start `lms-workflow`, the Go worker for the overdue → penalty saga (ADR-008): module, configuration and README with the saga scope.
 <!-- CONFIG-END -->
 
 ## 1. User stories worked this week
@@ -22,6 +22,9 @@
 | W14-06 | `useSession` composable that wraps `shell/session` (`src/composables/useSession.ts`) | done | [c0db426](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/c0db426) |
 | W14-07 | Federated `mountAccessLogin` (`src/mount.ts`) and standalone router (`src/router.ts`) | done | [e309165](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e309165) |
 | W14-08 | Portal manifest, `vite.config.ts` and tsconfig in this folder so it builds here | todo |  |
+| W14-09 | `lms-workflow` Go module, `.env.example`, `.gitignore` and `Makefile` | done | [de467c9](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/de467c9) |
+| W14-10 | `lms-workflow` README: two-step saga scope, `workflow.saga_run` state, migration scope | done | [3a35b8c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3a35b8c) |
+| W14-11 | `lms-workflow` source (`cmd/worker`, `internal/`, `migrations/`) and tests | todo |  |
 
 ## 2. My individual contribution
 - `src/main.ts`: standalone-dev entry; creates the Vue app with `App` and `router` and mounts it on `#app`. It is only used by `npm run dev` outside the shell; when `lms-front` composes the portal it loads `mount.ts` instead.
@@ -43,6 +46,12 @@
 - `.gitignore`: `node_modules`, `dist`, the `.mf` cache, `.env` and `*.pem`, so the build is not committed.
 - `13-week/hu-status/deploy/nginx.conf`: `remoteEntry.js` with `Cache-Control: no-store` (H-front rule 4, so a deployed fix always reaches the browser), `/assets/` cached for one year as `immutable`, CORS `*` on both, SPA fallback to `index.html`, and a local-only `/api/v1/` proxy to `access-service:8080` while `lms-api-gateway` does not exist.
 - `13-week/hu-status/deploy/compose.yml`: service `access-portal` on port `3004:80`, on the external `lms-network`; it runs the portal alone and is not the `lms-infra` composition.
+- `lms-workflow/` (new Go service, `github.com/code-corhuila/lms-workflow`):
+  - `go.mod` on Go 1.25.1 with `golang-jwt/jwt/v5` (internal HS256 token), `jackc/pgx/v5` (PostgreSQL) and `go.uber.org/zap` (structured logs); `go.sum` pins the versions.
+  - `.env.example`: DB connection, `INTERNAL_JWT_SECRET` (service-to-service, not the end-user RS256 token), `CIRCULATION_SERVICE_URL`, `MEMBERSHIP_SERVICE_URL`, `POLL_INTERVAL=15m` (same cadence as ADR-009) and `LOG_LEVEL`.
+  - `Makefile`: `dev` (`go run ./cmd/worker/...`), `test`, `test-cover` (HTML coverage), `build` (`bin/worker`) and `lint` (`golangci-lint`).
+  - `.gitignore`: binaries, `coverage.out`, `/vendor/`, `.env`, `*.pem`, Liquibase local files and IDE folders.
+  - `README.md`: per ADR-008 the saga only has two steps once a loan is overdue: mark the loan late in `lms-circulation-api`, then suspend the student in `lms-membership-api`. It is orchestrated with no broker (AT-002), driven by a ticker instead of an HTTP server. State lives in `workflow.saga_run` (`PENDING → MARKED_LATE → COMPLETED` or `FAILED`), with `loan_id` as the idempotency key and forward recovery only. The `workflow` schema lives on the shared PostgreSQL instance, applied by a Liquibase executor in this repo. It also documents the branching policy (`develop` / `qa` / `main`, promotion by `cherry-pick -x`).
 
 ## 3. Blockers and risks
 - The portal source is now complete in `src/`, but it still cannot be built from this folder (see the next point), so `dist/` was produced with the week 13 configuration and has not been rebuilt from this source.
@@ -52,6 +61,12 @@
 - `compose.yml` builds `deploy/Dockerfile`, but that Dockerfile is the Node image of `lms-access-api` (`EXPOSE 8080`, `node src/index.js`) and does not copy `dist/` into nginx, while compose maps port `80`. The portal needs its own nginx Dockerfile.
 - The shell URL is still fixed to `http://localhost:3000/remoteEntry.js` in the build, so it needs a per-environment value before any deploy outside local development.
 - CORS `*` on `remoteEntry.js` and `/assets/` is acceptable for static files but should be narrowed to the `lms-front` origin once it is known.
+- `lms-workflow` has no source yet: `cmd/worker/`, `internal/`, `migrations/` and `deploy/compose.yml`, which the README and `Makefile` describe, do not exist, so `make dev`, `make test` and `make build` fail.
+- The saga needs `POST /api/v1/loans/{id}/mark-late` on `lms-circulation-api`, which is not built yet; only `GET /api/v1/loans/overdue` (HU-08) exists.
+- `go.sum` still lists `go-chi/chi/v5`, which `go.mod` does not require; `go mod tidy` should clean it.
+- `lms-workflow` is on Go 1.25.1, the same version where `govulncheck` found 8 reachable standard library vulnerabilities in week 13; it needs Go 1.26.9.
+- `.env.example` ships `INTERNAL_JWT_SECRET=change-me-internal-secret` and `lms_password`, the same example values flagged in the W13 STRIDE (row S).
+- ADR-006 still says workflow is stateless, which contradicts ADR-008; the README flags it but the ADR text is not corrected.
 - `14-week/01-session` and `14-week/02-session` are empty.
 
 ## 4. Plan for next week
@@ -59,6 +74,8 @@
 - Write an nginx multi-stage Dockerfile for the portal (`node:22-alpine` build → `nginx:alpine` with `nginx.conf` and `dist/`) and point `compose.yml` to it.
 - Make the shell `remoteEntry.js` URL configurable per environment.
 - Run the login view end to end against `POST /api/v1/auth/login` of `lms-access-api` and add a test for `mountAccessLogin` (mount, `onAuthenticated` callback, unmount).
+- Write the `lms-workflow` source: the `Run` aggregate with its state machine, the `ApplyPenalty` use case, the PostgreSQL `RunRepository`, the HTTP clients with the internal JWT, the ticker and the `workflow.saga_run` migration; unit tests for skip-if-`COMPLETED` and resume-at-`MARKED_LATE`.
+- Run `go mod tidy` and move the module to Go 1.26.9.
 
 ## 5. Compliance self-check
 - [x] Conventional Commits - `type(scope): summary`
@@ -70,5 +87,5 @@
 
 ## 6. Evidence links
 - Folder: [14-week/hu-status](./)
-- Files: [src/main.ts](src/main.ts), [src/App.vue](src/App.vue), [src/env.d.ts](src/env.d.ts), [src/shims/shell.d.ts](src/shims/shell.d.ts), [src/views/LoginView.vue](src/views/LoginView.vue), [src/composables/useSession.ts](src/composables/useSession.ts), [src/mount.ts](src/mount.ts), [src/router.ts](src/router.ts), [.gitignore](.gitignore), [nginx.conf](../../13-week/hu-status/deploy/nginx.conf), [compose.yml](../../13-week/hu-status/deploy/compose.yml)
-- Commits: [deb0b54](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/deb0b54), [d4b4a53](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d4b4a53), [ddc8b74](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ddc8b74), [8b96202](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8b96202), [edad5ef](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/edad5ef), [c0db426](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/c0db426), [e309165](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e309165)
+- Files: [src/main.ts](src/main.ts), [src/App.vue](src/App.vue), [src/env.d.ts](src/env.d.ts), [src/shims/shell.d.ts](src/shims/shell.d.ts), [src/views/LoginView.vue](src/views/LoginView.vue), [src/composables/useSession.ts](src/composables/useSession.ts), [src/mount.ts](src/mount.ts), [src/router.ts](src/router.ts), [.gitignore](.gitignore), [lms-workflow/README.md](lms-workflow/README.md), [lms-workflow/go.mod](lms-workflow/go.mod), [lms-workflow/.env.example](lms-workflow/.env.example), [lms-workflow/Makefile](lms-workflow/Makefile), [nginx.conf](../../13-week/hu-status/deploy/nginx.conf), [compose.yml](../../13-week/hu-status/deploy/compose.yml)
+- Commits: [deb0b54](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/deb0b54), [d4b4a53](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/d4b4a53), [ddc8b74](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/ddc8b74), [8b96202](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/8b96202), [edad5ef](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/edad5ef), [c0db426](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/c0db426), [e309165](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/e309165), [de467c9](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/de467c9), [3a35b8c](https://github.com/MENESESLUIS-bot/sistemas-distribuidos-2026-b-g2/commit/3a35b8c)
